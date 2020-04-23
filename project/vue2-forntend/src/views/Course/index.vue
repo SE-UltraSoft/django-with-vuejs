@@ -1,7 +1,6 @@
 <template>
   <div class="app-container">
     <v-app>
-
       <v-row class="fill-height">
         <v-rol>
           <!--课程组合框 开始-->
@@ -142,7 +141,7 @@
 
               <el-tab-pane label="共享资源">
 
-                  <v-list>
+                <v-list>
 
                     <v-subheader>课程笔记</v-subheader>
                     <v-list-item @click="">
@@ -208,15 +207,20 @@
                     </v-list-item>
                   </v-list>
 
-                <el-upload
-                  class="upload-demo"
-                  drag
-                  action="https://jsonplaceholder.typicode.com/posts/"
-                  multiple>
-                  <i class="el-icon-upload"></i>
-                  <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-                  <!--div class="el-upload__tip" slot="tip">文件不超过500kb</div-->
-                </el-upload>
+                <el-divider></el-divider>
+
+                <el-form :inline="true" :model="downloadInline" class="demo-form-inline">
+                  <el-form-item label="文件名">
+                    <el-input v-model="downloadInline.ftitle" placeholder="文件名"></el-input>
+                  </el-form-item>
+                  <el-form-item label="分享链接">
+                    <el-input v-model="downloadInline.furl" placeholder="分享链接"></el-input>
+                  </el-form-item>
+                  <el-form-item>
+                    <el-button type="primary" @click="onFileSubmit">分享</el-button>
+                  </el-form-item>
+                </el-form>
+
               </el-tab-pane>
 
             </el-tabs>
@@ -226,7 +230,6 @@
         </v-rol>
 
       </v-row>
-
     </v-app>
   </div>
   </template>
@@ -280,6 +283,11 @@
         contacts: 0,
       },
       //日程表 结束
+
+      downloadInline: {
+        ftitle: '',
+        furl: ''
+      }
 
     }),
 
@@ -429,6 +437,11 @@
         this.close()
       },
       //图表编辑 结束
+
+      onFileSubmit() {
+        this.$message('submit!');
+        console.log(this.downloadInline)
+      }
 
     },
   }

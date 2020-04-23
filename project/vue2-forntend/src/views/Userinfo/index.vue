@@ -72,35 +72,33 @@
                     </v-list>
                   </v-card-->
                   <v-card flat>
-                    <el-form ref="form" :model="form" label-width="120px">
-                          <el-form-item label="姓名">
-                            <el-input v-model="form.name" placeholder="请输入你的姓名"/>
-                          </el-form-item>
-                          <el-form-item label="学号">
-                            <el-input v-model="form.studentID" placeholder="请输入你的学号"/>
-                          </el-form-item>
-                          <el-form-item label="邮箱">
-                            <el-input v-model="form.email" placeholder="请输入你的邮箱"/>
-                          </el-form-item>
-                          <el-form-item label="密码">
-                            <el-input placeholder="请输入密码" v-model="password" show-password></el-input>
-                          </el-form-item>
-
-                          <el-form-item label="用户类型">
-                            <el-select v-model="form.region" placeholder="please select your zone">
-                              <el-option label="Zone one" value="shanghai" />
-                              <el-option label="Zone two" value="beijing" />
-                            </el-select>
-                          </el-form-item>
-
-                          <el-form-item label="个人简介">
-                            <el-input v-model="form.desc" type="textarea" autosize/>
-                          </el-form-item>
-
-                          <el-form-item>
-                            <el-button type="primary" @click="onSubmit">保存</el-button>
-                          </el-form-item>
-                        </el-form>
+                    <el-form ref="form" :model="form" label-width="400px">
+                      <el-form-item label="姓名">
+                        <el-input v-model="form.name" placeholder="请输入您的姓名"/>
+                      </el-form-item>
+                      <el-form-item label="学号">
+                        <el-input v-model="form.studentID" placeholder="请输入您的学号"/>
+                      </el-form-item>
+                      <el-form-item label="邮箱">
+                        <el-input v-model="form.email" placeholder="请输入您的邮箱"/>
+                      </el-form-item>
+                      <el-form-item label="密码">
+                        <el-input v-model="form.password" placeholder="请输入密码" show-password></el-input>
+                      </el-form-item>
+                      <el-form-item label="用户类型">
+                        <el-select v-model="form.region" placeholder="">
+                          <el-option label="学生" value="student" />
+                          <el-option label="助教" value="assistant" />
+                          <el-option label="老师" value="teather" />
+                        </el-select>
+                      </el-form-item>
+                      <el-form-item label="个人简介">
+                        <el-input v-model="form.desc" type="textarea" autosize/>
+                      </el-form-item>
+                      <el-form-item>
+                        <el-button type="primary" @click="onUserSubmit">保存</el-button>
+                      </el-form-item>
+                    </el-form>
                   </v-card>
                 </v-tab-item>
 
@@ -158,79 +156,58 @@
                       subheader
                       three-line
                     >
-                      <v-subheader>提醒时间</v-subheader>
+                      <v-subheader>默认提醒时间</v-subheader>
                         <v-list-item-group
                           v-model="settings"
                           multiple
                         >
                           <v-list-item>
                               <v-list-item-content>
-                                <v-list-item-title>账户默认提醒时间</v-list-item-title>
-                                <v-list-item-sub-title>
-                                  <el-col :span="4">
-                                    <el-input v-model="defaultDRemainer" placeholder="请输入内容"></el-input>
-
-                                  </el-col>
-
-                                  <el-col :span="1">
-                                    <el-input
-                                      placeholder="天"
-                                      :disabled="true">
-                                    </el-input>
-
-                                  </el-col>
-
-                                  <el-col :span="4">
-                                    <el-input v-model="defaultHRemainer" placeholder="请输入内容"></el-input>
-                                  </el-col>
-                                  <el-col :span="1">
-                                    <el-input
-                                      placeholder="时"
-                                      :disabled="true">
-                                    </el-input>
-
-                                  </el-col>
-
-                                  <el-col :span="4">
-                                    <el-input v-model="defaultMRemainer" placeholder="请输入内容"></el-input>
-                                  </el-col>
-
-                                  <el-col :span="1">
-                                    <el-input
-                                      placeholder="分"
-                                      :disabled="true">
-                                    </el-input>
-
-                                  </el-col>
-
-                                </v-list-item-sub-title>
-
+                                <!--v-list-item-title>账户默认提醒时间</v-list-item-title-->
+                                <el-form :inline="true" :model="downloadInline" class="demo-form-inline">
+                                  <el-form-item label="距离截止时间还剩"></el-form-item>
+                                  <el-form-item label="">
+                                    <el-input v-model="defaultDRemainer" placeholder="天"></el-input>
+                                  </el-form-item>
+                                  <el-form-item label="天"></el-form-item>
+                                  <el-form-item label="">
+                                    <el-input v-model="defaultHRemainer" placeholder="时"></el-input>
+                                  </el-form-item>
+                                  <el-form-item label="时"></el-form-item>
+                                  <el-form-item label="">
+                                    <el-input v-model="defaultMRemainer" placeholder="分"></el-input>
+                                  </el-form-item label="">
+                                    <el-form-item label="分"></el-form-item>
+                                  <el-form-item>
+                                    <el-button type="primary" @click="onRemainerSubmit">保存</el-button>
+                                  </el-form-item>
+                                </el-form>
                               </v-list-item-content>
                           </v-list-item>
 
                           <v-list-item>
-                                <v-list-item-content>
-                                  <v-list-item-title>根据课程个性化设置</v-list-item-title>
-                                  <v-switch v-model="switch1"  :label="` ${switch1.toString()}`"></v-switch>
-                                  <template>
-                                    <v-simple-table v-show="switch1">
-                                      <template v-slot:default>
-                                        <thead>
-                                          <tr>
-                                            <th class="text-left">课程名称</th>
-                                            <th class="text-left">截止时间</th>
-                                          </tr>
-                                        </thead>
-                                        <tbody>
-                                          <tr v-for="item in ddls" :key="item.name">
-                                            <td>{{ item.name }}</td>
-                                            <td>{{ item.remaintime }}</td>
-                                          </tr>
-                                        </tbody>
-                                      </template>
-                                    </v-simple-table>
+                            <v-list-item-content>
+                              <v-list-item-title>根据课程个性化设置</v-list-item-title>
+                              <v-switch v-model="isCustomization"  :label="` ${isCustomization.toString()}`"></v-switch>
+                              <template>
+                                <v-simple-table v-show="isCustomization">
+                                  <template v-slot:default>
+                                    <thead>
+                                      <tr>
+                                        <th class="text-left">课程名称</th>
+                                        <th class="text-left">截止时间</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr v-for="item in ddls" :key="item.name">
+                                        <td>{{ item.name }}</td>
+                                        <td>{{ item.remaintime }}</td>
+                                      </tr>
+                                    </tbody>
                                   </template>
-                                </v-list-item-content>
+                                </v-simple-table>
+                              </template>
+                            </v-list-item-content>
                           </v-list-item>
 
                         </v-list-item-group>
@@ -253,8 +230,6 @@
   export default {
     data () {
       return {
-        password: '111111',
-        switch1: false,
 
         defaultDRemainer: '',
         defaultHRemainer: '',
@@ -262,14 +237,14 @@
 
         form: {
           name: '',
+          studentID: '',
+          email: '',
+          password: '',
           region: '',
-          date1: '',
-          date2: '',
-          delivery: false,
-          type: [],
-          resource: '',
-          desc: ''
+          desc: '',
         },
+
+        isCustomization: false,
 
         ddls: [
           {
@@ -285,17 +260,22 @@
             remaintime: '5h15m',
           },
         ],
-
+        
 
       }
     },
 
-
     methods: {
-      onSubmit() {
+      onUserSubmit() {
+
+        this.$message('submit!');
+        console.log(this.form)
+      },
+
+      onRemainerSubmit() {
         this.$message('submit!')
       },
-    }
+    },
 
   }
 
