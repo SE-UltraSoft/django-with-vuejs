@@ -29,9 +29,11 @@ class Task(models.Model):
     ddl_time = models.DateTimeField(null=True)
     notification_time = models.DateTimeField(null=True)
     notification_content = models.TextField(null=True)
+    notification_alert = models.BooleanField(default = True)
     
     
 class UserTask(models.Model):
     user = models.ForeignKey(to='User',to_field='uid', on_delete=models.CASCADE)
     task = models.ForeignKey(to='Task',to_field='tid', on_delete=models.CASCADE)
     is_admin = models.BooleanField(default=False)
+    is_finished = models.BooleanField(default=False)
