@@ -35,38 +35,43 @@ def show_user(request): #展示用户信息
     return JsonResponse(response)
 
 
-def create_courses(request): #管理员创建新课程
-    response={}
-    data = json.loads(request.body.decode())
-    course = Course.objects.filter(cid=data["cid"])
-    if course.exists():
-        response["msg"]="The course_id already exists."
-    else:
-        Course.objects.create(cid = data["cid"], name = data["name"])
-        response["msg"]="Success."
-    return JsonResponse(response)
+#def create_courses(request): #管理员创建新课程
+#    response={}
+#    data = json.loads(request.body.decode())
+#    course = Course.objects.filter(cid=data["cid"])
+#    if course.exists():
+#        response["msg"]="The course_id already exists."
+#    else:
+#        Course.objects.create(cid = data["cid"], name = data["name"])
+#        response["msg"]="Success."
+#    return JsonResponse(response)
 
 
-def show_all_courses(request): #查看所有课程列表(管理员维护以及用户选课)
-    response = {}
-    courses = Course.objects.all()
-    for c in courses:
-        response["data"] += [{
-            "cid": c.cid,
-            "course_name": c.name
-        }]
-    return JsonResponse(response)
+#def show_all_courses(request): #查看所有课程列表(管理员维护以及用户选课)
+#    response = {}
+#    courses = Course.objects.all()
+#    for c in courses:
+#        response["data"] += [{
+#            "cid": c.cid,
+#            "course_name": c.name
+#        }]
+#    return JsonResponse(response)
     
     
-def add_courses(request): #用户添加自己所选课程
+def add_courses(request): #从课程中心获取用户所选课程并同步作业
     response = {}
     data = json.loads(request.body.decode())
-    usercourse = UserCourse.objects.filter(cid=data["cid"])
-    if usercourse.exists():
-        response["msg"]="The course has already been chosen."
-    else:
-        UserCourse.objects.create(user = data["uid"], course = data["cid"])
-        response["msg"]="Success."
+    for d in data["courses"]:
+        course = Course.objects.filter(cid=d["cid"])
+        if not course.exists():
+            Course.objects.create(cid=d["cid"],name=d["course_name"],teacher=d["course_teacher"])
+            for a in d["assignments"]:
+                Task.objects.create(tid=a["tid"],title=a["title"],course=d["cid"],content=a["content"],category="homework",urls=a["urls"],ddl_time=a["ddl_time"],notification_time=a["notification_time"],notification_content=a["notification_content"],notification_alert=a["notification_alert"])
+        usercourse = UserCourse.objects.filter(uid=data["uid"],cid=d["cid"])
+        if not usercourse.exists():
+            UserCourse.objects.create(user = data["uid"], course = d["cid"])
+            for a in d["assignments"]:
+                UserTask.objects.create(user = data["uid"], task = a["tid"])
     return JsonResponse(response)
     
 
@@ -79,6 +84,7 @@ def show_user_courses(request): #用户查看自己所选课程
         response["data"] += [{
             "cid": course.cid,
             "course_name": course.name,
+            "course_teacher": course.teacher,
             "is_admin": c.is_admin
         }]  
     return JsonResponse(response)
@@ -89,7 +95,7 @@ def admin_add_task(request): #课程管理员为选择了所有课的人添加ta
     data = json.loads(request.body.decode())
     usercourse = UserCourse.objects.filter(user=data["uid"],course=data["cid"])
     if usercourse.is_admin:
-        Task.objects.create(tid=data["tid"],title=data["title"],course=data["course"],content=data["content"],category=data["category"],urls=data["urls"],ddl_time=data["ddl_time"],notification_time=data["notification_time"],notification_content=data["notification_content"],notification_alert=data["notification_alert"])
+        Task.objects.create(tid=data["tid"],title=data["title"],course=data["cid"],content=data["content"],category=data["category"],urls=data["urls"],ddl_time=data["ddl_time"],notification_time=data["notification_time"],notification_content=data["notification_content"],notification_alert=data["notification_alert"])
         response["msg"]="Success."
         participants=UserCourse.objects.filter(course=data["cid"]) 
         for p in participants:
@@ -105,19 +111,24 @@ def add_task(request): #用户个人添加task(需要选择或输入participant)
     data = json.loads(request.body.decode())
     task = Task.objects.filter(tid=data["tid"])
     if task.exists(): #若此项task已存在则视为修改此task的属性信息
-        task.update(title=data["title"])
-        task.update(course=data["course"])
-        task.update(content=data["content"])
-        task.update(category=data["category"])
-        task.update(urls=data["urls"])
-        task.update(ddl_time=data["ddl_time"])
-        task.update(notification_time=data["notification_time"])
-        task.update(notification_content=data["notification_content"])
-        task.update(notification_alert=data["notification_alert"])
-        response["msg"]="Update success."
+        #验证修改权限
+        if UserTask.objects.filter(user=data["uid"],task=data["tid"],is_admin=True).exists():
+            task.update(title=data["title"])
+            task.update(course=data["course"])
+            task.update(content=data["content"])
+            task.update(platform=data["platform"])
+            task.update(category=data["category"])
+            task.update(urls=data["urls"])
+            task.update(ddl_time=data["ddl_time"])
+            task.update(notification_time=data["notification_time"])
+            task.update(notification_content=data["notification_content"])
+            task.update(notification_alert=data["notification_alert"])
+            response["msg"]="Update success."
+        else:
+            response["msg"]="Cannot modify task."
     else: #不存在就创建新的task
         Task.objects.create(tid=data["tid"],title=data["title"],course=data["course"],content=data["content"],category=data["category"],urls=data["urls"],ddl_time=data["ddl_time"],notification_time=data["notification_time"],notification_content=data["notification_content"],notification_alert=data["notification_alert"])
-        response["msg"]="Success."
+        response["msg"]="Create success."
         UserTask.objects.create(user=data["uid"],task=data["tid"],is_admin=True) #发布者有修改权
         for id in data["participant"]:
             UserTask.objects.create(user=id,task=data["tid"])
@@ -136,13 +147,14 @@ def show_user_task(request): #用户查看自己的所有任务及ddl
                 "title": task.title,
                 "course": task.course,
                 "content": task.content,
+                "platform": task.platform,
                 "category": task.category,
                 "urls": task.urls,
                 "ddl_time": task.ddl_time,
                 "notification_time": task.notification_time,
-                "notification_content": task.notification_content
-                "notification_alert": task.notification_alert
-                "is_admin:": t.is_admin
+                "notification_content": task.notification_content,
+                "notification_alert": task.notification_alert,
+                "is_admin:": t.is_admin,
                 "is_finished": t.is_finished
             }]  
     else:

@@ -9,8 +9,9 @@ class User(models.Model):
     
     
 class Course(models.Model):
-    cid = models.CharField(primary_key=True, max_length=20)
+    cid = models.CharField(primary_key=True, max_length=100)
     name = models.CharField(max_length=50)
+    teacher =models.CharField(max_length=50)
    
    
 class UserCourse(models.Model):
@@ -24,6 +25,7 @@ class Task(models.Model):
     title = models.CharField(max_length=50)
     course = models.ForeignKey(to='Course',to_field='cid', on_delete=models.CASCADE, null=True)
     content = models.TextField(null=True)
+    platform = models.CharField(max_length=20)
     category = models.CharField(max_length=20)
     urls = models.CharField(max_length=200,null=True)
     ddl_time = models.DateTimeField(null=True)
