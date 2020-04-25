@@ -2,213 +2,128 @@
   <div class="app-container">
     <v-app>
       <v-row class="fill-height">
-        <v-rol>
-          <!--课程组合框 开始-->
-          <v-sheet height="100">
-            <v-container fluid>
-              <v-row>
-                <v-col cols="12">
-                  <v-combobox
-                    v-model="select"
-                    :items="items"
-                    label="已选课程"
-                    multiple
-                    chips
-                    dense
-                  ></v-combobox>
-                </v-col>
-              </v-row>
-            </v-container>
-          </v-sheet>
-          <!--课程组合框 结束-->
+        <v-container fluid>
+          <v-col>
+            <v-combobox
+              v-model="select"
+              :items="courses"
+              label="已选课程"
+              multiple
+              chips
+              dense
+            ></v-combobox>
+          </v-col>
+          <v-tabs>
+            <v-tab>DDL列表</v-tab>
+            <v-tab>共享资源</v-tab>
 
-          <!--日程列表 开始-->
-          <v-sheet height="100%">
+            <!--DDL列表 开始-->
+            <v-tab-item>
+              <v-data-table
+                :headers="headers"
+                :items="tasks"
+                sort-by="ddl_time"
+                :search="search"
+              >
+                <template v-slot:top>
+                  <v-toolbar flat color="white">
+                    <v-text-field
+                      v-model="search"
+                      append-icon="mdi-magnify"
+                      label="Search"
+                      single-line
+                      hide-details
+                      class="mr-12"
+                    ></v-text-field>
 
-            <el-tabs type="border-card">
-              <el-tab-pane label="DDL列表">
-                <v-data-table
-                  :headers="headers"
-                  :items="ddls"
-                  :search="search"
-                  sort-by="remains"
-                  class="elevation-1"
-                >
+                    <v-dialog v-model="dialog" max-width="500px">
+                      <template v-slot:activator="{ on }">
+                        <v-btn color="primary" dark class="mb-2" v-on="on">创建新日程</v-btn>
+                      </template>
+                      <v-card>
+                        <v-card-title>
+                          <span class="headline">{{ formTitle }}</span>
+                        </v-card-title>
 
-                  <!--自定义列 开始-->
-                    <template v-slot:item.remains="{ item }">
-                      <v-chip :color="getColor(item.remains)" dark>{{ item.remains }}</v-chip>
-                    </template>
-                  <!--自定义列 结束-->
+                        <v-card-text>
+                          <v-container>
+                            <v-row>
+                              <v-col cols="12" sm="6" md="4">
+                                <v-text-field v-model="editedItem.name" label="事项名称"></v-text-field>
+                              </v-col>
+                              <v-col cols="12" sm="6" md="4">
+                                <v-text-field v-model="editedItem.start_time" label="发布时间"></v-text-field>
+                              </v-col>
+                              <v-col cols="12" sm="6" md="4">
+                                <v-text-field v-model="editedItem.ddl_time" label="截止时间"></v-text-field>
+                              </v-col>
+                              <v-col cols="12" sm="6" md="4">
+                                <v-text-field v-model="editedItem.remain" label="剩余时间"></v-text-field>
+                              </v-col>
+                              <v-col cols="12" sm="6" md="4">
+                                <v-text-field v-model="editedItem.done" label="完成状态"></v-text-field>
+                              </v-col>
+                            </v-row>
+                          </v-container>
+                        </v-card-text>
 
-                  <!--复选框 开始-->
-                  <template v-slot:item.glutenfree="{ item }">
-                    <v-simple-checkbox v-model="item.glutenfree" selectable></v-simple-checkbox>
-                  </template>
-                  <!--复选框 结束-->
+                        <v-card-actions>
+                          <v-spacer></v-spacer>
+                          <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
+                          <v-btn color="blue darken-1" text @click="save">Save</v-btn>
+                        </v-card-actions>
+                      </v-card>
+                    </v-dialog>
+                  </v-toolbar>
+                </template>
+                <!--完成状态复选框-->
+                <template v-slot:item.done="{ item }">
+                    <v-simple-checkbox v-model="item.done" ></v-simple-checkbox>
+                </template>
+                <template v-slot:item.actions="{ item }">
+                  <v-icon
+                    small
+                    class="mr-2"
+                    @click="editItem(item)"
+                  >
+                    mdi-pencil
+                  </v-icon>
+                  <v-icon
+                    small
+                    @click="deleteItem(item)"
+                  >
+                    mdi-delete
+                  </v-icon>
+                </template>
+                <template v-slot:no-data>
+                  <v-btn color="primary" @click="initialize">Reset</v-btn>
+                </template>
+              </v-data-table>
+            </v-tab-item>
+            <!--DDL列表 结束-->
 
-                  <!--图表头部编辑 开始-->
-                  <template v-slot:top>
-                    <v-toolbar flat color="white">
-                      <!--<v-toolbar-title>My CRUD</v-toolbar-title>
-                      <v-divider
-                        class="mx-4"
-                        inset
-                        vertical
-                      ></v-divider>
-                      <v-spacer></v-spacer>-->
+            <v-tab-item>
+              <v-simple-table >
+                <template v-slot:default>
+                  <thead>
+                    <tr>
+                      <th class="text-left">资源名称</th>
+                      <th class="text-left">资源链接</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="item in courseSrc" :key="item.name">
+                      <td>{{ item.name }}</td>
+                      <td>{{ item.url }}</td>
+                    </tr>
+                  </tbody>
+                </template>
+              </v-simple-table>
+              
+              
+              <v-divider></v-divider>
 
-                      <!--搜索框 开始-->
-                      <v-text-field
-                         v-model="search"
-                         append-icon="mdi-magnify"
-                         label="Search"
-                         single-line
-                         hide-details
-                       ></v-text-field>
-                       <!--搜索框 结束-->
-
-                      <!--v-spacer></v-spacer-->
-
-                      <!--图表编辑 开始-->
-                      <v-dialog v-model="dialog" max-width="100%">
-                        <!--template v-slot:activator="{ on }">
-                          <v-btn color="primary" dark class="mb-2" v-on="on">New Item</v-btn>
-                        </template-->
-                        <v-card>
-                          <v-card-title>
-                            <span class="headline">{{ formTitle }}</span>
-                          </v-card-title>
-
-                          <v-card-text>
-                            <v-container>
-                              <v-row>
-                                <v-col cols="12" sm="6" md="4">
-                                  <v-text-field v-model="editedItem.name" label="Dessert name"></v-text-field>
-                                </v-col>
-                                <v-col cols="12" sm="6" md="4">
-                                  <v-text-field v-model="editedItem.starts" label="Calories"></v-text-field>
-                                </v-col>
-                                <v-col cols="12" sm="6" md="4">
-                                  <v-text-field v-model="editedItem.ends" label="Fat (g)"></v-text-field>
-                                </v-col>
-                                <v-col cols="12" sm="6" md="4">
-                                  <v-text-field v-model="editedItem.remains" label="Carbs (g)"></v-text-field>
-                                </v-col>
-                                <v-col cols="12" sm="6" md="4">
-                                  <v-text-field v-model="editedItem.contacts" label="Protein (g)"></v-text-field>
-                                </v-col>
-                              </v-row>
-                            </v-container>
-                          </v-card-text>
-
-                          <v-card-actions>
-                            <v-spacer></v-spacer>
-                            <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
-                            <v-btn color="blue darken-1" text @click="save">Save</v-btn>
-                          </v-card-actions>
-                        </v-card>
-                      </v-dialog>
-                      <!--图表编辑 结束-->
-                    </v-toolbar>
-                  </template>
-                  <!--图表头部编辑 结束-->
-
-                  <!--图表编辑 开始-->
-                  <template v-slot:item.actions="{ item }">
-                    <v-icon
-                      small
-                      class="mr-2"
-                      @click="editItem(item)"
-                    >
-                      mdi-pencil
-                    </v-icon>
-                    <v-icon
-                      small
-                      @click="deleteItem(item)"
-                    >
-                      mdi-delete
-                    </v-icon>
-                  </template>
-                  <template v-slot:no-data>
-                    <v-btn color="primary" @click="initialize">Reset</v-btn>
-                  </template>
-                  <!--图表编辑 结束-->
-
-                </v-data-table>
-
-              </el-tab-pane>
-
-              <el-tab-pane label="共享资源">
-
-                <v-list>
-
-                    <v-subheader>课程笔记</v-subheader>
-                    <v-list-item @click="">
-                      <v-list-item-action>
-                        <v-icon>mdi-inbox-arrow-down</v-icon>
-                      </v-list-item-action>
-                      <v-list-item-content>
-                        <v-list-item-title>I'm a list item</v-list-item-title>
-                      </v-list-item-content>
-                    </v-list-item>
-
-                    <v-list-item @click="">
-                      <v-list-item-action>
-                        <v-icon>mdi-inbox-arrow-down</v-icon>
-                      </v-list-item-action>
-                      <v-list-item-content>
-                        <v-list-item-title>I'm a list item</v-list-item-title>
-                      </v-list-item-content>
-                    </v-list-item>
-
-                    <v-list-item @click="">
-                      <v-list-item-action>
-                        <v-icon>mdi-inbox-arrow-down</v-icon>
-                      </v-list-item-action>
-                      <v-list-item-content>
-                        <v-list-item-title>I'm a list item</v-list-item-title>
-                      </v-list-item-content>
-                    </v-list-item>
-
-                    <v-divider :inset="inset"></v-divider>
-
-                    <v-subheader>资源文件</v-subheader>
-
-                    <v-list-item @click="">
-                      <v-list-item-action>
-                        <v-icon>mdi-folder</v-icon>
-                      </v-list-item-action>
-                      <v-list-item-content>
-                        <v-list-item-title>I'm a list item</v-list-item-title>
-                      </v-list-item-content>
-                    </v-list-item>
-
-                    <v-divider :inset="inset"></v-divider>
-
-                    <v-list-item @click="">
-                      <v-list-item-action>
-                        <v-icon>mdi-folder</v-icon>
-                      </v-list-item-action>
-                      <v-list-item-content>
-                        <v-list-item-title>I'm a list item</v-list-item-title>
-                      </v-list-item-content>
-                    </v-list-item>
-
-                    <v-divider :inset="inset"></v-divider>
-
-                    <v-list-item @click="">
-                      <v-list-item-action>
-                        <v-icon>mdi-folder</v-icon>
-                      </v-list-item-action>
-                      <v-list-item-content>
-                        <v-list-item-title>I'm a list item</v-list-item-title>
-                      </v-list-item-content>
-                    </v-list-item>
-                  </v-list>
-
-                <el-divider></el-divider>
-
+              <v-col>
                 <el-form :inline="true" :model="downloadInline" class="demo-form-inline">
                   <el-form-item label="文件名">
                     <el-input v-model="downloadInline.ftitle" placeholder="文件名"></el-input>
@@ -217,95 +132,187 @@
                     <el-input v-model="downloadInline.furl" placeholder="分享链接"></el-input>
                   </el-form-item>
                   <el-form-item>
-                    <el-button type="primary" @click="onFileSubmit">分享</el-button>
+                    <el-button type="primary" :disabled="!(downloadInline.furl&&downloadInline.ftitle)" @click="onFileSubmit">分享</el-button>
                   </el-form-item>
                 </el-form>
+              </v-col>
 
-              </el-tab-pane>
+            </v-tab-item>
+          </v-tabs>
+        </v-container>
 
-            </el-tabs>
-
-          </v-sheet>
-          <!--日程列表 结束-->
-        </v-rol>
 
       </v-row>
     </v-app>
   </div>
-  </template>
+</template>
 
 <script>
+  //DDL列表 开始
+  var  responseL={
+      "success": true,
+      "message": "Success.",
+      "user": {
+          "uid": 1,
+          "student_id": "17373001",
+          "name": "北小航",
+          "email": "0000001@qq.com"
+     },
+      "data": [ //这里的data是task集合
+          { // homework
+              "tid": 27,
+              "title": "团队博客——功能规格",
+              "category": "homework",
+              "content": "这是一篇团队博客",
+              "useful_urls": [
+                  "www.edu.cnblogs.com/xxxxx",
+                  "www.github.com/BuaaRedSun/docs"
+              ],
+              "cid": "BH000001",
+              "ddl": {
+                  "ddl_id": 13,
+                  "ddl_time": {
+                      "date": "2020-04-21",
+                      "time": "23:55"
+                  },
+                  "notification_time": {
+                      "date": "2020-04-20",
+                      "time": "23:55",
+                      "repeat": null
+                  },
+                  "notification_content": "交作业啦"
+              }
+          },
+          { // exam
+              "tid": 35,
+              "title": "工科数学分析期中考试",
+              "category": "exam",
+              "useful_urls": null,
+              "cid": "BH0000102",
+              "ddl": {
+                  "ddl_id": 30,
+                  "ddl_time": {
+                      "date": "2020-04-22",
+                      "time": "14:30"
+                  },
+                  "notification_time": {
+                      "date": "2020-06-15",
+                      "time": "08:00",
+                      "repeat": "day"
+                  },
+                  "notification_content": "淑芬考试"
+              }
+          },
+          { // personal
+              "tid": 42,
+              "title": "拿快递",
+              "category": "personal",
+              "useful_urls": null,
+              "cid": null,
+              "ddl": {
+                  "ddl_id": 50,
+                  "ddl_time": {
+                      "date": "2020-04-18",
+                      "time": "17:30"
+                  },
+                  "notification_time": {
+                      "date": "2020-04-18",
+                      "time": "17:00",
+                      "repeat": null
+                  },
+                  "notification_content": "东门顺丰快递"
+              }
+          },
+          { // meeting
+              "tid": 77,
+              "title": "志愿者例会",
+              "category": "meeting",
+              "useful_urls": [
+                  "www.bv2008.cn"
+              ],
+              "cid": null,
+              "ddl": {
+                  "ddl_id": 70,
+                  "ddl_time": {
+                      "date": "2020-05-01",
+                      "time": "14:30"
+                  },
+                  "notification_time": {
+                      "date": "2020-05-01",
+                      "time": "14:00",
+                      "repeat": "week"
+                  },
+                  "notification_content": "汇报周进展"
+              }
+          },
+      ]
+  }
+
+  //DDL列表 结束
+
+
   export default {
     data: () => ({
       //课程组合框 开始
-      select: ['Vuetify', 'Programming'],
-      items: [
-        'Programming',
-        'Design',
-        'Vue',
-        'Vuetify',
-      ],
+      select: [],
+      courses: [],
+      ddls: [],
       //课程组合框 结束
 
-
-      //日程表 开始
-      search: '',
+      ////////////////////////////////////DDL列表 开始
       dialog: false,
+      search: '',
       headers: [
         {
-          text: '任务',
+          text: '事项名称',
           align: 'start',
           sortable: false,
           value: 'name',
         },
-        { text: '开始时间', value: 'starts' },
-        { text: '截止时间', value: 'ends' },
-        { text: '剩余时间', value: 'remains' },
-        { text: '联系人', value: 'contacts' },
-        { text: '已完成', value: 'glutenfree' },
-        { text: '编辑/删除', value: 'actions', sortable: false },
-
+        { text: '发布时间', value: 'start_time' },
+        { text: '截止日期', value: 'ddl_time' },
+        { text: '剩余时间', value: 'remain' },
+        { text: '完成状态', value: 'done' },
+        { text: 'Actions', value: 'actions', sortable: false },
       ],
-      ddls: [],
+      tasks: [],
       editedIndex: -1,
       editedItem: {
         name: '',
-        starts: 0,
-        ends: 0,
-        remains: 0,
-        contacts: 0,
+        start_time: '',
+        ddl_time: '',
+        doen: ''
       },
       defaultItem: {
         name: '',
-        starts: 0,
-        ends: 0,
-        remains: 0,
-        contacts: 0,
+        start_time: '',
+        ddl_time: '',
+        doen: ''
       },
-      //日程表 结束
+      ////////////////////////////////////DDL列表 结束
 
+
+      courseSrc: [],
       downloadInline: {
         ftitle: '',
         furl: ''
-      }
+      },
+
 
     }),
 
-
+    //DDL列表 开始
     computed: {
       formTitle () {
         return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
       },
     },
-
     watch: {
-      //日程表 开始
       dialog (val) {
         val || this.close()
       },
-      //日程表 结束
-
     },
+    //DDL列表 结束
 
 
     created () {
@@ -314,135 +321,96 @@
 
     methods: {
 
-      //自定义列 开始
-      getColor (remains) {
-        if (remains < 100) return 'red'
-        else if (remains < 500) return 'orange'
-        else return 'green'
-      },
-      //自定义列 结束
-
-
       //图表编辑 开始
       initialize () {
         this.ddls = [
           {
-            name: 'Frozen Yogurt',
+            name: '计算机科学方法论',
             starts: 159,
             ends: 6.0,
             remains: 24,
             contacts: 4.0,
             glutenfree: false,
+            remaintime: '1天12小时20分',
           },
           {
-            name: 'Ice cream sandwich',
+            name: '软件工程（罗杰、任建）',
             starts: 237,
             ends: 9.0,
             remains: 37,
             contacts: 4.3,
             glutenfree: false,
-          },
-          {
-            name: 'Eclair',
-            starts: 262,
-            ends: 16.0,
-            remains: 23,
-            contacts: 6.0,
-            glutenfree: false,
-          },
-          {
-            name: 'Cupcake',
-            starts: 305,
-            ends: 3.7,
-            remains: 670,
-            contacts: 4.3,
-            glutenfree: true,
-          },
-          {
-            name: 'Gingerbread',
-            starts: 356,
-            ends: 16.0,
-            remains: 495,
-            contacts: 3.9,
-            glutenfree: false,
-          },
-          {
-            name: 'Jelly bean',
-            starts: 375,
-            ends: 0.0,
-            remains: 194,
-            contacts: 0.0,
-            glutenfree: true,
-          },
-          {
-            name: 'Lollipop',
-            starts: 392,
-            ends: 0.2,
-            remains: 98,
-            contacts: 0,
-            glutenfree: false,
-          },
-          {
-            name: 'Honeycomb',
-            starts: 408,
-            ends: 3.2,
-            remains: 87,
-            contacts: 6.5,
-            glutenfree: true,
-          },
-          {
-            name: 'Donut',
-            starts: 452,
-            ends: 25.0,
-            remains: 51,
-            contacts: 4.9,
-            glutenfree: false,
-          },
-          {
-            name: 'KitKat',
-            starts: 518,
-            ends: 26.0,
-            remains: 65,
-            contacts: 7,
-            glutenfree: true,
+            remaintime: '0天0小时1分',
           },
         ]
-      },
-
-      editItem (item) {
-        this.editedIndex = this.ddls.indexOf(item)
-        this.editedItem = Object.assign({}, item)
-        this.dialog = true
-      },
-
-      deleteItem (item) {
-        const index = this.ddls.indexOf(item)
-        confirm('Are you sure you want to delete this item?') && this.ddls.splice(index, 1)
-      },
-
-      close () {
-        this.dialog = false
-        setTimeout(() => {
-          this.editedItem = Object.assign({}, this.defaultItem)
-          this.editedIndex = -1
-        }, 300)
-      },
-
-      save () {
-        if (this.editedIndex > -1) {
-          Object.assign(this.ddls[this.editedIndex], this.editedItem)
-        } else {
-          this.ddls.push(this.editedItem)
+        this.courseSrc = [
+          {
+            name: '计算机网络课程笔记',
+            url: 'https://www.buaa.edu.cn',
+          },
+          {
+            name: '软件工程学习资料',
+            url: 'https://pan.baidu.com',
+          },
+        ]
+        var i
+        for (i=0;i<this.ddls.length;i++) {
+          this.courses[i] = this.ddls[i].name
+          console.log(this.courses)
         }
-        this.close()
+
+        //DDL列表 开始
+        const temp=[]
+          var rdata = responseL.data;
+          for (let i = 0; i < rdata.length; i++){
+            var ie = rdata[i]
+            var ddl_etime = ie.ddl.ddl_time.date + ' ' + ie.ddl.ddl_time.time
+            temp.push({
+              name: ie.title,
+              start_time: ddl_etime,
+              ddl_time: ddl_etime,
+              remain:'1h',
+              doen: 'ture',
+              datails:{
+                tid:ie.tid,
+              }
+            })
+          }
+          this.tasks=temp;
+          this.tasks[1].remain='1h 30min'
+         },
+         editItem (item) {
+           this.editedIndex = this.tasks.indexOf(item)
+           this.editedItem = Object.assign({}, item)
+           this.dialog = true
+         },
+         deleteItem (item) {
+           const index = this.tasks.indexOf(item)
+           confirm('Are you sure you want to delete this item?') && this.tasks.splice(index, 1)
+         },
+         close () {
+           this.dialog = false
+           setTimeout(() => {
+             this.editedItem = Object.assign({}, this.defaultItem)
+             this.editedIndex = -1
+           }, 300)
+         },
+         save () {
+           if (this.editedIndex > -1) {
+             Object.assign(this.tasks[this.editedIndex], this.editedItem)
+           } else {
+             this.tasks.push(this.editedItem)
+           }
+           this.close()
+         },
+        //DDL列表 结束
+
       },
-      //图表编辑 结束
 
       onFileSubmit() {
-        this.$message('submit!');
+        this.$message('submit!' + this.downloadInline);
         console.log(this.downloadInline)
       }
+    }
 
-    },
-  }
 </script>

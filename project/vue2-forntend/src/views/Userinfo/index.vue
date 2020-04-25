@@ -2,287 +2,263 @@
   <div class="app-container">
     <v-app>
       <v-row class="fill-height">
-        <v-rol>
-          <template>
-              <v-tabs vertical>
-                <v-tab>
-                  <v-icon left>mdi-account</v-icon>
-                  个人信息
-                </v-tab>
-                <v-tab>
-                  <v-icon left>mdi-lock</v-icon>
-                  基础设置
-                </v-tab>
+        <v-tabs vertical>
+          <v-tab>
+            <v-icon left>mdi-account</v-icon>个人信息
+          </v-tab>
+          <v-tab>
+            <v-icon left>mdi-lock</v-icon>基础设置
+          </v-tab>
+          <!--基础设置-->
+          <v-tab-item>
+            <v-form ref="form" v-model="form" class="pa-4 pt-6">
+              <v-textarea
+                v-model="studentname"
+                auto-grow
+                filled
+                color="blue"
+                label="name"
+                rows="1"
+              ></v-textarea>
+              <v-textarea
+                v-model="studentID"
+                auto-grow
+                filled
+                color="blue"
+                label="studentID"
+                rows="1"
+              ></v-textarea>
+              <v-text-field
+                v-model="password"
+                :rules="[rules.password, rules.length(6)]"
+                filled
+                color="blue"
+                counter="6"
+                label="Password"
+                style="min-height: 96px"
+                type="password"
+              ></v-text-field>
+              <v-text-field
+                v-model="phone"
+                filled
+                color="blue"
+                label="Phone number"
+              ></v-text-field>
+              <v-text-field
+                v-model="email"
+                :rules="[rules.email]"
+                filled
+                color="blue"
+                label="Email address"
+                type="email"
+              ></v-text-field>
+              <v-textarea
+                v-model="profile"
+                auto-grow
+                filled
+                color="blue"
+                label="profile"
+                rows="1"
+              ></v-textarea>
+            </v-form>
+            <v-divider></v-divider>
+            <v-card-actions>
+              <v-btn text @click="$refs.form.reset()">Clear</v-btn>
+              <v-spacer></v-spacer>
+              <v-btn
+                :disabled="!form"
+                class="white--text"
+                color="blue accent-4"
+                depressed
+                @click="OnUserInfoSubmit"
+              >Submit</v-btn>
+            </v-card-actions>
+          </v-tab-item>
 
-                <v-tab-item>
-                  <!--v-card flat>
-                    <v-list two-line>
-                      <v-list-item @click="">
+          <v-tab-item>
+            <!--v-card
+              class="mx-auto"
+              max-width="68%"
+            -->
+              <v-list shaped>
+                <v-subheader>Email通知</v-subheader>
+                <v-list-item-group
+                  v-model="model"
+                  multiple
+                >
+                  <template v-for="(item, i) in items">
+                    <v-divider
+                      v-if="!item"
+                      :key="`divider-${i}`"
+                    ></v-divider>
 
-                        <v-list-item-icon>
-                          <v-icon color="indigo">mdi-message-text</v-icon>
-                        </v-list-item-icon>
-
-                        <v-list-item-content>
-                          <v-list-item-title>17060001</v-list-item-title>
-                          <v-list-item-subtitle>Student Id</v-list-item-subtitle>
-                        </v-list-item-content>
-
-                      </v-list-item>
-
-                      <v-list-item @click="">
-                        <v-list-item-icon>
-                          <v-icon color="indigo">mdi-phone</v-icon>
-                        </v-list-item-icon>
-
-                        <v-list-item-content>
-                          <v-list-item-title>空空</v-list-item-title>
-                          <v-list-item-subtitle>Name</v-list-item-subtitle>
-                        </v-list-item-content>
-
-                      </v-list-item>
-
-                      <v-divider inset></v-divider>
-
-                      <v-list-item @click="">
-                        <v-list-item-icon>
-                          <v-icon color="indigo">mdi-email</v-icon>
-                        </v-list-item-icon>
-
-                        <v-list-item-content>
-                          <v-list-item-title>aliconnors@example.com</v-list-item-title>
-                          <v-list-item-subtitle>Email</v-list-item-subtitle>
-                        </v-list-item-content>
-                      </v-list-item>
-
-                      <v-divider inset></v-divider>
-
-                      <v-list-item @click="">
-                        <v-list-item-icon>
-                          <v-icon color="indigo">mdi-map-marker</v-icon>
-                        </v-list-item-icon>
-
-
-                        <v-list-item-content>
-                          <v-list-item-title>普通学生</v-list-item-title>
-                          <v-list-item-subtitle>User Level</v-list-item-subtitle>
-                        </v-list-item-content>
-
-                      </v-list-item>
-                    </v-list>
-                  </v-card-->
-                  <v-card flat>
-                    <el-form ref="form" :model="form" label-width="400px">
-                      <el-form-item label="姓名">
-                        <el-input v-model="form.name" placeholder="请输入您的姓名"/>
-                      </el-form-item>
-                      <el-form-item label="学号">
-                        <el-input v-model="form.studentID" placeholder="请输入您的学号"/>
-                      </el-form-item>
-                      <el-form-item label="邮箱">
-                        <el-input v-model="form.email" placeholder="请输入您的邮箱"/>
-                      </el-form-item>
-                      <el-form-item label="密码">
-                        <el-input v-model="form.password" placeholder="请输入密码" show-password></el-input>
-                      </el-form-item>
-                      <el-form-item label="用户类型">
-                        <el-select v-model="form.region" placeholder="">
-                          <el-option label="学生" value="student" />
-                          <el-option label="助教" value="assistant" />
-                          <el-option label="老师" value="teather" />
-                        </el-select>
-                      </el-form-item>
-                      <el-form-item label="个人简介">
-                        <el-input v-model="form.desc" type="textarea" autosize/>
-                      </el-form-item>
-                      <el-form-item>
-                        <el-button type="primary" @click="onUserSubmit">保存</el-button>
-                      </el-form-item>
-                    </el-form>
-                  </v-card>
-                </v-tab-item>
-
-                <v-tab-item>
-                  <v-card flat>
-                    <v-list
-                      flat
-                      subheader
-                      three-line
+                    <v-list-item
+                      v-else
+                      :key="`item-${i}`"
+                      :value="item"
+                      active-class="blue--text text--accent-4"
                     >
-                      <v-subheader>Email通知</v-subheader>
+                      <template v-slot:default="{ active, toggle }">
+                        <v-list-item-content>
+                          <v-list-item-title v-text="item"></v-list-item-title>
+                        </v-list-item-content>
 
-                      <v-list-item-group
-                        v-model="settings"
-                        multiple
-                      >
-                        <v-list-item>
-                            <v-list-item-action>
-                              <v-checkbox v-model="active"></v-checkbox>
-                            </v-list-item-action>
+                        <v-list-item-action>
+                          <v-checkbox
+                            :input-value="active"
+                            :true-value="item"
+                            color="blue accent-4"
+                            @click="toggle"
+                          ></v-checkbox>
+                        </v-list-item-action>
+                      </template>
+                    </v-list-item>
+                  </template>
+                </v-list-item-group>
 
-                            <v-list-item-content>
-                              <v-list-item-title>DDL提醒</v-list-item-title>
-                              <v-list-item-subtitle>Notify me about updates to apps or games that I downloaded</v-list-item-subtitle>
-                            </v-list-item-content>
-                        </v-list-item>
+                <v-divider
+                  class="mx-4"
+                  vertical
+                ></v-divider>
 
-                        <v-list-item>
-                            <v-list-item-action>
-                              <v-checkbox v-model="active"></v-checkbox>
-                            </v-list-item-action>
+                <v-subheader>默认提醒时间</v-subheader>
+                <v-list-item>
+                  <v-list-item-content>
+                    <v-list-item-title v-text="`距离截止时间还剩`"></v-list-item-title>
+                    <v-row>
+                      <v-col cols="auto" >
+                        <v-textarea
+                          class="mx-2"
+                          label="天"
+                          rows="1"
+                        ></v-textarea>
+                      </v-col>
+                      <v-col cols="auto" >
+                        <v-textarea
+                          class="mx-2"
+                          label="小时"
+                          rows="1"
+                        ></v-textarea>
+                      </v-col>
+                      <v-col cols="auto" >
+                        <v-textarea
+                          class="mx-2"
+                          label="分钟"
+                          rows="1"
+                        ></v-textarea>
+                      </v-col>
+                    </v-row>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-list-item>
+                  <v-list-item-content>
+                    <v-list-item-title v-text="`根据课程个性化设置 ${isCustomization.toString()}`"></v-list-item-title>
+                  </v-list-item-content>
+                  <v-list-item-action>
+                    <v-switch v-model="isCustomization"></v-switch>
+                  </v-list-item-action>
+                </v-list-item>
+                <v-list-item>
+                  <v-list-item-content>
+                    <template>
+                      <v-simple-table v-show="isCustomization">
+                        <template v-slot:default>
+                          <thead>
+                            <tr>
+                              <th class="text-left">课程名称</th>
+                              <th class="text-left">截止时间</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr v-for="item in ddls" :key="item.name">
+                              <td>{{ item.name }}</td>
+                              <td>{{ item.remaintime }}</td>
+                            </tr>
+                          </tbody>
+                        </template>
+                      </v-simple-table>
+                    </template>
+                  </v-list-item-content>
 
-                            <v-list-item-content>
-                              <v-list-item-title>团体日程提醒</v-list-item-title>
-                              <v-list-item-subtitle>Auto-update apps at any time. Data charges may apply</v-list-item-subtitle>
-                            </v-list-item-content>
-                        </v-list-item>
+                </v-list-item>
 
-                        <v-list-item>
-                            <v-list-item-action>
-                              <v-checkbox v-model="active"></v-checkbox>
-                            </v-list-item-action>
+              </v-list>
+            <!--/v-card-->
+          </v-tab-item>
 
-                            <v-list-item-content>
-                              <v-list-item-title>共享资源更新</v-list-item-title>
-                              <v-list-item-subtitle>Automatically add home screen widgets when downloads complete</v-list-item-subtitle>
-                            </v-list-item-content>
-                        </v-list-item>
-                      </v-list-item-group>
-
-                    </v-list>
-
-                    <v-list
-                      flat
-                      subheader
-                      three-line
-                    >
-                      <v-subheader>默认提醒时间</v-subheader>
-                        <v-list-item-group
-                          v-model="settings"
-                          multiple
-                        >
-                          <v-list-item>
-                              <v-list-item-content>
-                                <!--v-list-item-title>账户默认提醒时间</v-list-item-title-->
-                                <el-form :inline="true" :model="downloadInline" class="demo-form-inline">
-                                  <el-form-item label="距离截止时间还剩"></el-form-item>
-                                  <el-form-item label="">
-                                    <el-input v-model="defaultDRemainer" placeholder="天"></el-input>
-                                  </el-form-item>
-                                  <el-form-item label="天"></el-form-item>
-                                  <el-form-item label="">
-                                    <el-input v-model="defaultHRemainer" placeholder="时"></el-input>
-                                  </el-form-item>
-                                  <el-form-item label="时"></el-form-item>
-                                  <el-form-item label="">
-                                    <el-input v-model="defaultMRemainer" placeholder="分"></el-input>
-                                  </el-form-item label="">
-                                    <el-form-item label="分"></el-form-item>
-                                  <el-form-item>
-                                    <el-button type="primary" @click="onRemainerSubmit">保存</el-button>
-                                  </el-form-item>
-                                </el-form>
-                              </v-list-item-content>
-                          </v-list-item>
-
-                          <v-list-item>
-                            <v-list-item-content>
-                              <v-list-item-title>根据课程个性化设置</v-list-item-title>
-                              <v-switch v-model="isCustomization"  :label="` ${isCustomization.toString()}`"></v-switch>
-                              <template>
-                                <v-simple-table v-show="isCustomization">
-                                  <template v-slot:default>
-                                    <thead>
-                                      <tr>
-                                        <th class="text-left">课程名称</th>
-                                        <th class="text-left">截止时间</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      <tr v-for="item in ddls" :key="item.name">
-                                        <td>{{ item.name }}</td>
-                                        <td>{{ item.remaintime }}</td>
-                                      </tr>
-                                    </tbody>
-                                  </template>
-                                </v-simple-table>
-                              </template>
-                            </v-list-item-content>
-                          </v-list-item>
-
-                        </v-list-item-group>
-                    </v-list>
-
-                  </v-card>
-                </v-tab-item>
-
-              </v-tabs>
-          </template>
-
-        </v-rol>
+        </v-tabs>
       </v-row>
     </v-app>
   </div>
-
 </template>
 
 <script>
-  export default {
-    data () {
-      return {
+export default {
+  data: () => ({
 
-        defaultDRemainer: '',
-        defaultHRemainer: '',
-        defaultMRemainer: '',
+    form: false,
+    
+    studentname: '小小软',
+    studentID: '17066666',
+    phone: '18888888888',
+    email: '17066666@buaa.edu.cn',
+    password: 'Hey!ddlkiller123',
+    profile: 'The journey is the reword.',
 
-        form: {
-          name: '',
-          studentID: '',
-          email: '',
-          password: '',
-          region: '',
-          desc: '',
+
+    rules: {
+      email: v => (v || '').match(/@/) || 'Please enter a valid email',
+      length: len => v => (v || '').length >= len || `Invalid character length, required ${len}`,
+      password: v => (v || '').match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*(_|[^\w])).+$/) ||
+        'Password must contain an upper case letter, a numeric character, and a special character',
+      required: v => !!v || 'This field is required',
+    },
+
+    items: [
+      'DDL提醒',
+      '团体日程提醒',
+      //'',
+      '共享资源更新',
+    ],
+    model: ['DDL提醒'],
+
+    isCustomization: false,
+
+    ddls: [],
+  }),
+
+  created () {
+    this.initialize()
+  },
+
+  methods:{
+
+    OnUserInfoSubmit() {//传输数据到后台
+      this.$message('submit!')
+    },
+
+    initialize () {
+      this.ddls = [
+        {
+          name: '计算机科学方法论',
+          starts: 159,
+          ends: 6.0,
+          remains: 24,
+          contacts: 4.0,
+          glutenfree: false,
+          remaintime: '1天12小时20分',
         },
-
-        isCustomization: false,
-
-        ddls: [
-          {
-            name: 'Frozen Yogurt',
-            remaintime: '2h15m',
-          },
-          {
-            name: 'Ice cream sandwich',
-            remaintime: '3h15m',
-          },
-          {
-            name: 'Eclair',
-            remaintime: '5h15m',
-          },
-        ],
-        
-
-      }
+        {
+          name: '软件工程（罗杰、任建）',
+          starts: 237,
+          ends: 9.0,
+          remains: 37,
+          contacts: 4.3,
+          glutenfree: false,
+          remaintime: '0天0小时1分',
+        },
+      ]
     },
-
-    methods: {
-      onUserSubmit() {
-
-        this.$message('submit!');
-        console.log(this.form)
-      },
-
-      onRemainerSubmit() {
-        this.$message('submit!')
-      },
-    },
-
   }
-
-</script>
-
-<style scoped>
-.line{
-  text-align: center;
 }
-</style>
+</script>
