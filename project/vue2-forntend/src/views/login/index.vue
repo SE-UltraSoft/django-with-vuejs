@@ -3,7 +3,7 @@
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
 
       <div class="title-container">
-        <h3 class="title">Login Form</h3>
+        <h3 class="title">Login</h3>
       </div>
 
       <el-form-item prop="username">
@@ -46,6 +46,9 @@
       <div class="tips">
         <span style="margin-right:20px;">username: admin</span>
         <span> password: any</span>
+      </div>
+      <div class="tips">
+        <span style="margin-right:20px;">还没有账号？<el-link type="primary" @click="regis">点击注册</el-link></span>
       </div>
 
     </el-form>
@@ -106,10 +109,10 @@ export default {
       })
     },
     handleLogin() {
-      this.$refs.loginForm.validate(valid => {
+      this.$refs.loginForm.validate(valid => { // 箭头函数可以直接访问到最外面的this
         if (valid) {
           this.loading = true
-          this.$store.dispatch('user/login', this.loginForm).then(() => {
+          this.$store.dispatch('user/login', this.loginForm).then(() => { // dispatch: 把这个请求分发到user/login处理
             this.$router.push({ path: this.redirect || '/' })
             this.loading = false
           }).catch(() => {
@@ -120,6 +123,9 @@ export default {
           return false
         }
       })
+    },
+    regis() {
+      this.$router.push({path: '/register'})
     }
   }
 }

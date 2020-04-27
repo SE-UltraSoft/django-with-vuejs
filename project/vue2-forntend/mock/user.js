@@ -46,6 +46,20 @@ export default [
       }
     }
   },
+  {
+    url: '/vue-admin-template/user/register',
+    type: 'post',
+    response: config => {
+      // const { username } = config.body
+      // const token = tokens[username]
+
+      console.log(config.body)
+
+      return {
+        code: 20000
+      }
+    }
+  },
 
   // get user info
   {
