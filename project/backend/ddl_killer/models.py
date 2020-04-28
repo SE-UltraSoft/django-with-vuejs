@@ -9,7 +9,7 @@ class User(models.Model):
     
     
 class Course(models.Model):
-    cid = models.CharField(primary_key=True, max_length=100)
+    cid = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50)
     teacher =models.CharField(max_length=50)
    
@@ -21,7 +21,7 @@ class UserCourse(models.Model):
     
     
 class Task(models.Model):
-    tid = models.CharField(primary_key=True, max_length=20)
+    tid = models.AutoField(primary_key=True)
     title = models.CharField(max_length=50)
     course = models.ForeignKey(to='Course',to_field='cid', on_delete=models.CASCADE, null=True)
     content = models.TextField(null=True)
