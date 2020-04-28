@@ -9,7 +9,7 @@
               :items="courses"
               label="已选课程"
               multiple
-              chips
+              chips 
               dense
             ></v-combobox>
           </v-col>
@@ -320,8 +320,7 @@
     },
 
     methods: {
-
-      //图表编辑 开始
+       //图表编辑 开始
       initialize () {
         this.ddls = [
           {
