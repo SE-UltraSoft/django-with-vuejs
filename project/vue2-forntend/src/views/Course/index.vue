@@ -3,16 +3,27 @@
     <v-app>
       <v-row class="fill-height">
         <v-container fluid>
-          <v-col>
-            <v-combobox
+          <!--v-col-->
+            <v-chip-group
+              column
+                active-class="primary--text"
+              >
+                <v-chip v-for="tag in tags" :key="tag.cid" @click="chooseOne(tag)" 
+                  class="ma-2" color="blue" outlined label
+                >
+                  {{ tag.name }}
+                </v-chip>
+            </v-chip-group>
+
+            <!--v-combobox
               v-model="select"
               :items="courses"
               label="已选课程"
               multiple
               chips 
               dense
-            ></v-combobox>
-          </v-col>
+            ></v-combobox-->
+          <!--/v-col-->
           <v-tabs>
             <v-tab>DDL列表</v-tab>
             <v-tab>共享资源</v-tab>
@@ -119,8 +130,8 @@
                   </tbody>
                 </template>
               </v-simple-table>
-              
-              
+
+
               <v-divider></v-divider>
 
               <v-col>
@@ -250,6 +261,19 @@
 
   //DDL列表 结束
 
+var responseC = {
+  data:[
+    {
+      name:'软工',
+      cid:1,
+    },
+    {
+      name:'计网',
+      cid:2,
+    }
+
+  ]
+  }
 
   export default {
     data: () => ({
@@ -298,6 +322,8 @@
         furl: ''
       },
 
+      tags: []
+
 
     }),
 
@@ -316,11 +342,32 @@
 
 
     created () {
-      this.initialize()
+      //this.initialize();
+      this.initCourList();
     },
 
     methods: {
+<<<<<<< HEAD
        //图表编辑 开始
+=======
+      //初始化已选课程
+      initCourList(){
+        //从后端获取课程信息 这边模拟的 var
+        for(let i=0;i<responseC.data.length;i++){
+            this.tags.push(responseC.data[i])
+        }
+      },
+      chooseOne(item){
+        alert("hahahah  "+item.cid);
+        //item里面为你 tags里面某一项的对象的详细信息
+        //这边向后台强求数据的时候会用到cid等数据
+         //从后台获得相应的列表数据  然后初始化列表数据
+         this.initialize();
+         //然后课程资源也是一样的  你判断下当前的是哪个界面 不同界面请求不同数据 赋值不同变量
+      },
+
+      //图表编辑 开始
+>>>>>>> 7be48cb761dd23e5b4fd75b96b956db936066930
       initialize () {
         this.ddls = [
           {
