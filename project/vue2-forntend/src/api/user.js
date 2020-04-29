@@ -15,12 +15,20 @@ export function register(data) {
     data
   })
 }
-
+// 首页右上角的info
 export function getInfo(token) {
   return request({
     url: '/vue-admin-template/user/info',
     method: 'get',
     params: { token }
+  })
+}
+// 个人中心的info
+export function getUserInfo(uid) {
+  return request({
+    url: '/vue-admin-template/api/user/info',
+    method: 'get',
+    params: { uid }
   })
 }
 

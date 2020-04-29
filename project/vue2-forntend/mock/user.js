@@ -24,6 +24,14 @@ const users = {
   }
 }
 
+const user_info = {
+    "uid": 1,
+    "student_id": "17373001",
+    "name": "北小航",
+    "email": "0000001@qq.com",
+    "created_at": "2020-03-15 16:22:37"
+}
+
 export default [
   // user login
   {
@@ -70,6 +78,7 @@ export default [
       const { token } = config.query
       const info = users[token]
 
+      console.log(config.query)
       // mock error
       if (!info) {
         return {
@@ -82,6 +91,39 @@ export default [
         code: 20000,
         data: info
       }
+    }
+  },
+
+  // get user info detail
+  {
+    url: '/vue-admin-template/api/user/info',
+    type: 'get',
+    response: config => {
+      const { uid } = config.query
+      var hasInfo = true
+
+      console.log(config.query)
+
+      if (hasInfo) {
+        return {
+          code: 20000,
+          data: {
+            'success': true,
+            'message': "Success.",
+            'user': user_info,
+          }
+        }
+      }
+      else {
+        return {
+          code: 20000,
+          data: {
+            'success': false,
+            'message': 'User not exists.'
+          }
+        }
+      }
+      
     }
   },
 

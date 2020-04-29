@@ -193,17 +193,20 @@
 </template>
 
 <script>
+
+import { getUserInfo } from '@/api/user';
+
 export default {
   data: () => ({
 
     form: false,
     
-    studentname: '小小软',
-    studentID: '17066666',
-    phone: '18888888888',
-    email: '17066666@buaa.edu.cn',
-    password: 'Hey!ddlkiller123',
-    profile: 'The journey is the reword.',
+    studentname: '',
+    studentID: '',
+    phone: '',
+    email: '',
+    password: '',
+    profile: '',
 
 
     rules: {
@@ -238,6 +241,23 @@ export default {
     },
 
     initialize () {
+      
+      getUserInfo(this.$store.getters.uid).then(res => {
+        console.log(res)
+        if (res.data.success) {
+          var user_info = res.data.user
+          this.studentname = user_info.name
+          this.studentID = user_info.student_id
+          // this.phone = '18888888888',
+          this.email = user_info.email
+          // password: 'Hey!ddlkiller123',
+          // profile: 'The journey is the reword.',
+        }
+        else {
+          alert(res.data.message)
+        }
+      })
+
       this.ddls = [
         {
           name: '计算机科学方法论',
