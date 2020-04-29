@@ -13,6 +13,9 @@ export default {
     ...mapGetters([
       'name'
     ])
+  },
+  created() {
+    console.log(this.$store.getters.uid)
   }
 }
 </script>
