@@ -8,6 +8,21 @@
         <h3 class="title">Register</h3>
       </div>
 
+      <el-form-item prop="uid">
+        <span class="svg-container">
+          <svg-icon icon-class="user" />
+        </span>
+        <el-input
+          ref="uid"
+          v-model="ruleForm.uid"
+          placeholder="学号"
+          name="uid"
+          type="text"
+          tabindex="1"
+          auto-complete="on"
+        />
+      </el-form-item>
+
       <el-form-item prop="username">
         <span class="svg-container">
           <svg-icon icon-class="user" />
@@ -88,6 +103,13 @@
 import { register } from '@/api/user'
   export default {
     data() {
+      const validateUid = (rule, value, callback) => {
+        if (value == '') {
+          callback(new Error('请输入学号'))
+        } else {
+          callback()
+        }
+      }
       const validateUsername = (rule, value, callback) => {
         if (value == '') {
           callback(new Error('请输入用户名'))
@@ -116,14 +138,17 @@ import { register } from '@/api/user'
       };
       return {
         ruleForm: {
+          uid: '',
           username: '',
           email: '',
           ecode: '',
           pass: '',
           checkPass: '',
-          
         },
         rules: {
+          uid: [
+            {require: true, validator: validateUid, trigger: 'blur'}
+          ],
           username: [
             { require: true, validator: validateUsername, trigger: 'blur'}
           ],
@@ -142,7 +167,7 @@ import { register } from '@/api/user'
       };
     },
     watch: {
-      "ruleForm.username": {
+      "ruleForm.uid": {
         handler(newVal){
           console.log("change")
           this.ruleForm.email = newVal + '@buaa.edu.cn'
@@ -257,7 +282,7 @@ $light_gray:#eee;
     position: relative;
     width: 520px;
     max-width: 100%;
-    padding: 160px 35px 0;
+    padding: 50px 35px 0;
     margin: 0 auto;
     overflow: hidden;
   }
