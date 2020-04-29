@@ -86,10 +86,8 @@
 
 <script>
 import { register } from '@/api/user'
-
   export default {
     data() {
-
       const validateUsername = (rule, value, callback) => {
         if (value == '') {
           callback(new Error('请输入用户名'))
@@ -142,6 +140,15 @@ import { register } from '@/api/user'
         },
         passwordType: 'password'
       };
+    },
+    watch: {
+      "ruleForm.username": {
+        handler(newVal){
+          console.log("change")
+          this.ruleForm.email = newVal + '@buaa.edu.cn'
+        },
+        deep: true
+      }
     },
     methods: {
       mailVertify() {
