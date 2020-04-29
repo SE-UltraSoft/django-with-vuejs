@@ -25,42 +25,82 @@
             hide-details
             class="mr-12"
           ></v-text-field>
-
-          <v-dialog v-model="dialog" max-width="500px">
+          <v-dialog v-model="createOpen" max-width="500px">
             <template v-slot:activator="{ on }">
               <v-btn color="primary" dark class="mb-2" v-on="on">创建新日程</v-btn>
             </template>
             <v-card>
-              <v-card-title>
-                <span class="headline">{{ formTitle }}</span>
-              </v-card-title>
-
+              <v-toolbar color="primary" dark>
+                <v-toolbar-title>创建新日程</v-toolbar-title>
+              </v-toolbar>
               <v-card-text>
-                <v-container>
-                  <v-row>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-text-field v-model="editedItem.name" label="事项名称"></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-text-field v-model="editedItem.start_time" label="发布时间"></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-text-field v-model="editedItem.ddl_time" label="截止时间"></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-text-field v-model="editedItem.remain" label="剩余时间"></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-text-field v-model="editedItem.done" label="完成状态"></v-text-field>
-                    </v-col>
-                  </v-row>
-                </v-container>
+                <p></p>
+                <el-form ref="createForm" :model="createForm" :rules="createRule" label-width="110px">
+                  <el-form-item label="事项名称" prop="name">
+                    <el-input v-model="createForm.name"></el-input>
+                  </el-form-item>
+                  <el-form-item label="事项类型">
+                    <el-select v-model="createForm.type" placeholder="请选择类型">
+                      <el-option label="个人" value="personal"></el-option>
+                      <el-option label="作业" value="homework"></el-option>
+                      <el-option label="会议" value="meeting"></el-option>
+                      <el-option label="考试" value="exam"></el-option>
+                    </el-select>
+                  </el-form-item>
+                  <el-form-item label="关联课程" v-if="createForm.type=='homework'">
+                    <el-input v-model="createForm.course"></el-input>
+                  </el-form-item>
+                  <el-form-item label="相关平台" v-if="createForm.type=='homework'">
+                    <el-input v-model="createForm.platform"></el-input>
+                  </el-form-item>
+                  <el-form-item label="截止时间">
+                    <el-col :span="11">
+                      <el-form-item prop="ddlDay">
+                        <el-date-picker  value-format="yyyy-MM-dd" format="yyyy-MM-dd" placeholder="选择日期"  v-model="createForm.ddlDay" style="width: 100%;"></el-date-picker>
+                      </el-form-item>
+                    </el-col>
+                    <el-col class="line" :span="2">-</el-col>
+                    <el-col :span="11">
+                      <el-form-item prop="ddlTime">
+                        <el-time-picker value-format="HH:mm:ss" format="HH:mm:ss" placeholder="选择时间" v-model="createForm.ddlTime" style="width: 100%;"></el-time-picker>
+                      </el-form-item>
+                    </el-col>
+                  </el-form-item>
+                  <el-form-item label="开启提醒" prop="alert">
+                    <el-switch v-model="createForm.alert"></el-switch>
+                  </el-form-item>
+                  <el-form-item label="提醒时间" v-if="createForm.alert==true">
+                    <el-col :span="11">
+                      <el-form-item prop="alertDay">
+                        <el-date-picker  value-format="yyyy-MM-dd" format="yyyy-MM-dd" placeholder="选择日期" v-model="createForm.alertDay" style="width: 100%;"></el-date-picker>
+                      </el-form-item>
+                    </el-col>
+                    <el-col class="line" :span="2">-</el-col>
+                    <el-col :span="11">
+                      <el-form-item prop="alertTime">
+                        <el-time-picker value-format="HH:mm:ss" format="HH:mm:ss" placeholder="选择时间" v-model="createForm.alertTime" style="width: 100%;"></el-time-picker>
+                      </el-form-item>
+                    </el-col>
+                  </el-form-item>
+                  <el-form-item label="是否提醒他人" v-if="createForm.type!=personal" prop="alertOther">
+                    <el-switch v-model="createForm.alertOther"></el-switch>
+                  </el-form-item>
+                  <el-form-item v-if="createForm.alertOther==true" label="事项相关成员" prop="remindValue">
+                    <el-select
+                        v-model="createForm.remindValue"
+                        multiple
+                        filterable
+                        allow-create
+                        default-first-option
+                        placeholder="请输入学号">
+                      </el-select>
+                  </el-form-item>
+                </el-form>
               </v-card-text>
-
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
-                <v-btn color="blue darken-1" text @click="save">Save</v-btn>
+                <v-btn color="blue darken-1" text v-on="on" @click="createTask('createForm')">立即创建</v-btn>
+                <v-btn color="blue darken-1" text @click="createCancel('createForm')">取消</v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -68,23 +108,61 @@
       </template>
       <!--完成状态复选框-->
       <template v-slot:item.done="{ item }">
-          <v-simple-checkbox v-model="item.done" ></v-simple-checkbox>
+          <v-simple-checkbox v-model="item.done" disabled></v-simple-checkbox>
       </template>
       <template v-slot:item.actions="{ item }">
-        <v-icon
-          small
-          class="mr-2"
-          @click="editItem(item)"
-        >
-          mdi-pencil
-        </v-icon>
-        <v-icon
-          small
-          @click="deleteItem(item)"
-        >
-          mdi-delete
-        </v-icon>
+        <v-icon small class="mr-2"  @click="editItem(item)"> mdi-pencil </v-icon>
+        <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
+        <v-dialog v-model="editOpen" max-width="500px">
+          <v-card>
+            <v-card-title>
+              <span class="headline" v-text="editedItem.name"></span>
+            </v-card-title>
+            <v-card-text>
+                <p></p>
+                <el-form ref="editedItem" :model="editedItem" label-width="100px">
+                  <el-form-item label="发布时间">
+                    <span v-text="editedItem.start_time"></span>
+                  </el-form-item>
+                  <el-form-item label="截止时间">
+                    <span v-text="editedItem.ddl_time"></span>
+                  </el-form-item>
+                  <el-form-item label="事项分类">
+                    <span v-text="editedItem.category"></span>
+                  </el-form-item>
+                  <el-form-item v-if="editedItem.category=='homework'" label="关联课程">
+                    <span v-text="editedItem.cname"></span>
+                  </el-form-item>
+                  <el-form-item v-if="editedItem.category=='homework'" label="提交平台">
+                    <span v-text="editedItem.platform"></span>
+                  </el-form-item>
+                  <el-form-item label="完成状态">
+                    <el-switch v-model="editedItem.done" active-color="#13ce66"></el-switch>
+                  </el-form-item>
+                  <el-form-item label="开启提醒功能">
+                    <el-switch v-model="editedItem.alert"></el-switch>
+                  </el-form-item>
+                  <el-form-item label="提醒时间">
+                    <el-date-picker
+                          v-model="editedItem.alert_time"
+                          type="datetime"
+                          placeholder="选择日期时间"
+                          value-format="yyyy-MM-dd HH:mm:ss"
+                          format="yyyy-MM-dd HH:mm:ss"
+                          default-time="12:00:00">
+                        </el-date-picker>
+                  </el-form-item>
+                </el-form>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="blue darken-1" text @click="modifyTaskSave(item)">保存修改</v-btn>
+                <v-btn color="blue darken-1" text @click="editOpen = false">取消</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
       </template>
+
       <template v-slot:no-data>
         <v-btn color="primary" @click="initialize">Reset</v-btn>
       </template>
@@ -94,107 +172,11 @@
 </template>
 
 <script>
-var  responseL={
-    "success": true,
-    "message": "Success.",
-    "user": {
-        "uid": 1,
-        "student_id": "17373001",
-        "name": "北小航",
-        "email": "0000001@qq.com"
-   },
-    "data": [ //这里的data是task集合
-        { // homework
-            "tid": 27,
-            "title": "团队博客——功能规格",
-            "category": "homework",
-            "content": "这是一篇团队博客",
-            "useful_urls": [
-                "www.edu.cnblogs.com/xxxxx",
-                "www.github.com/BuaaRedSun/docs"
-            ],
-            "cid": "BH000001",
-            "ddl": {
-                "ddl_id": 13,
-                "ddl_time": {
-                    "date": "2020-04-21",
-                    "time": "23:55"
-                },
-                "notification_time": {
-                    "date": "2020-04-20",
-                    "time": "23:55",
-                    "repeat": null
-                },
-                "notification_content": "交作业啦"
-            }
-        },
-        { // exam
-            "tid": 35,
-            "title": "工科数学分析期中考试",
-            "category": "exam",
-            "useful_urls": null,
-            "cid": "BH0000102",
-            "ddl": {
-                "ddl_id": 30,
-                "ddl_time": {
-                    "date": "2020-04-22",
-                    "time": "14:30"
-                },
-                "notification_time": {
-                    "date": "2020-06-15",
-                    "time": "08:00",
-                    "repeat": "day"
-                },
-                "notification_content": "淑芬考试"
-            }
-        },
-        { // personal
-            "tid": 42,
-            "title": "拿快递",
-            "category": "personal",
-            "useful_urls": null,
-            "cid": null,
-            "ddl": {
-                "ddl_id": 50,
-                "ddl_time": {
-                    "date": "2020-04-18",
-                    "time": "17:30"
-                },
-                "notification_time": {
-                    "date": "2020-04-18",
-                    "time": "17:00",
-                    "repeat": null
-                },
-                "notification_content": "东门顺丰快递"
-            }
-        },
-        { // meeting
-            "tid": 77,
-            "title": "志愿者例会",
-            "category": "meeting",
-            "useful_urls": [
-                "www.bv2008.cn"
-            ],
-            "cid": null,
-            "ddl": {
-                "ddl_id": 70,
-                "ddl_time": {
-                    "date": "2020-05-01",
-                    "time": "14:30"
-                },
-                "notification_time": {
-                    "date": "2020-05-01",
-                    "time": "14:00",
-                    "repeat": "week"
-                },
-                "notification_content": "汇报周进展"
-            }
-        },
-    ]
-}
+import { getAllTasks, deleteOneTask, createOneTask, modifyOneTask } from "@/api/tasks"
+
 export default {
     data: () => ({
-      dialog: false,
+      editOpen: false,//详情页
       search: '',
       headers: [
         {
@@ -205,29 +187,72 @@ export default {
         },
         { text: '发布时间', value: 'start_time' },
         { text: '截止日期', value: 'ddl_time' },
-        { text: '剩余时间', value: 'remain' },
+        { text: '事项类型', value: 'category' },
         { text: '完成状态', value: 'done' },
         { text: 'Actions', value: 'actions', sortable: false },
       ],
       tasks: [],
       editedIndex: -1,
-      editedItem: {
-        name: '',
-        start_time: '',
-        ddl_time: '',
-        doen: ''
-      },
       defaultItem: {
-        name: '',
-        start_time: '',
-        ddl_time: '',
-        doen: ''
+        name:'',
+        start_time:'',
+        ddl_time:'',
+        category:'',
+        cname:'',
+        platform:'',
+        doen:false,
+        alert:false,
+        alert_time:'',
+        datails:null
       },
+      editedItem:{
+        name:'',
+        start_time:'',
+        ddl_time:'',
+        category:'',
+        cname:'',
+        platform:'',
+        doen:false,
+        alert:false,
+        alert_time:'',
+        datails:null
+      },
+      createOpen:false,//创建界面
+      createForm: {
+          name: '',
+          type: "personal",
+          course:'',
+          platform:'',
+          ddlDay: '',
+          ddlTime: '',
+          alert: false,
+          alertDay:'',
+          alertTime:'',
+          alertOther: false,
+          remindValue: []
+        },
+      createRule:{
+        name:[
+           { required: true, message: '请输入事项名称', trigger: 'blur' },
+        ],
+        ddlDay:[
+          { required: true, message: '请选择日期', trigger: 'change' }
+        ],
+        ddlTime:[
+          {  required: true, message: '请选择时间', trigger: 'change' },
+        ],
+        alertDay:[
+          {  required: true, message: '请选择日期', trigger: 'change' }
+        ],
+        alertTime:[
+          {  required: true, message: '请选择时间', trigger: 'change' },
+        ],
+        remindValue: [
+          { type: 'array', required: true, message: '请至少输入一个学号', trigger: 'change' }
+        ],
+      }
     }),
     computed: {
-      formTitle () {
-        return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
-      },
     },
     watch: {
       dialog (val) {
@@ -235,53 +260,127 @@ export default {
       },
     },
     created () {
-      this.initialize()
+      getAllTasks().then(res => {  // fetch data
+          // return response
+          console.log(res)
+          this.initialize(res.data)
+      })
     },
     methods: {
-      initialize () {
-	   const temp=[]
-       var rdata = responseL.data;
-       for (let i = 0; i < rdata.length; i++){
-         var ie = rdata[i]
-         var ddl_etime = ie.ddl.ddl_time.date + ' ' + ie.ddl.ddl_time.time
-         temp.push({
-           name: ie.title,
-           start_time: ddl_etime,
-           ddl_time: ddl_etime,
-           remain:'1h',
-           doen: 'ture',
-           datails:{
-             tid:ie.tid,
-           }
-         })
-       }
-       this.tasks=temp;
-       this.tasks[1].remain='1h 30min'
+      initialize(fetched_data) {
+        const temp = []
+        var rdata = fetched_data.data
+        // var rdata = responseL.data;
+        // var rdata = fetchData()
+        for (let i = 0; i < rdata.length; i++){
+          var ie = rdata[i]
+          temp.push({
+            name: ie.title,
+            start_time: ie.created_at,
+            ddl_time: ie.ddl.ddl_time,
+            category:ie.category,
+            cname:ie.course_name,
+            platform:ie.platform,
+            doen: ie.is_finished,
+            alert:ie.ddl.notification_alert,
+            alert_time:ie.ddl.notification_time,
+            datails:ie,
+          })
+        }
+        this.tasks= temp;
       },
-      editItem (item) {
+      editItem(item) {
         this.editedIndex = this.tasks.indexOf(item)
+        console.log(this.editedIndex)
+        //给editItem赋值
         this.editedItem = Object.assign({}, item)
-        this.dialog = true
+        console.log(this.editedItem)
+        //this.editedItem.detail=Object.assign({},item.detail)
+        this.editOpen = true
+        console.log(this.editOpen)
       },
-      deleteItem (item) {
+      modifyTaskSave(item){
+        Object.assign(this.tasks[this.editedIndex], this.editedItem)
+        this.editOpen=false
+        modifyOneTask(item.detail).then(res =>{
+          console.log(res.data)
+        })
+      },
+      deleteItem(item) {
         const index = this.tasks.indexOf(item)
         confirm('Are you sure you want to delete this item?') && this.tasks.splice(index, 1)
+        //与后端交互 删除task
+        deleteOneTask(item.detail).then(res => {
+          console.log(res.data)
+        })
       },
-      close () {
-        this.dialog = false
-        setTimeout(() => {
-          this.editedItem = Object.assign({}, this.defaultItem)
-          this.editedIndex = -1
-        }, 300)
+      createTask(formName){
+        this.$refs[formName].validate((valid) => {
+                  var temp = this.createForm;
+                  const ddl_date_time = this.createForm.ddlDay+' '+this.createForm.ddlTime;
+                  const alert_date_time=this.createForm.alertDay+' '+this.createForm.alertTime;
+                  const create_time = this.formatDate(new Date(),true);
+                  const detail=this.formatDetail(-1,temp.name,temp.type,null,temp.platform,-1,temp.course,-1,
+                                             ddl_date_time,temp.alert,alert_date_time,create_time,false)
+                  if (valid) {
+                    var newTask={
+                      name: temp.name,
+                      start_time:create_time ,
+                      ddl_time: ddl_date_time,
+                      category:temp.type,
+                      cname:temp.course,
+                      platform:temp.platform,
+                      doen:temp.done,
+                      alert:temp.alert,
+                      alert_time:alert_date_time,
+                      detail:detail
+                      }
+                    this.tasks.push(newTask);
+                    this.createOpen = false;
+                    // 与后端交互 创建新task
+                    console.log(temp.remindValue)
+                    createOneTask(detail).then(res =>{
+                      console.log(res.data)
+                    })
+                    this.$refs[formName].resetFields();
+
+                  } else {
+                    console.log('error submit!!');
+                    return false;
+                  }
+                });
       },
-      save () {
-        if (this.editedIndex > -1) {
-          Object.assign(this.tasks[this.editedIndex], this.editedItem)
-        } else {
-          this.tasks.push(this.editedItem)
-        }
-        this.close()
+      createCancel(formName){
+        this.$refs[formName].resetFields();
+        this.createOpen = false
       },
-    },
+      formatDate(a, withTime) {
+        return withTime
+          ? `${a.getFullYear()}-${a.getMonth() + 1}-${a.getDate()} ${a.getHours()}:${a.getMinutes()}:${a.getSeconds()}`
+          : `${a.getFullYear()}-${a.getMonth() + 1}-${a.getDate()}`
+      },
+      formatDetail(tid,title,category,urls,platform,cid,cname,ddl_id,ddl_time,alert,alert_time,create_time,done){
+        var detail = { // personal
+            "tid":tid,
+            "title":title,
+            "category": category,
+            "useful_urls": null,
+            "platform": platform,
+            "cid": null,
+            "course_name": cname,
+            "ddl": {
+                "ddl_id":ddl_id,
+                "ddl_time":ddl_time,
+                "notification_alert":alert,
+                "notification_time":alert_time,
+                "notification_repeat": null,
+                "notification_content": ''
+            },
+            "created_at":create_time, //获取时间
+            "is_finished": done
+          }
+          return detail
+      }
+    }
   }
 </script>
