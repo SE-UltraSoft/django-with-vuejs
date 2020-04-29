@@ -35,26 +35,26 @@ def show_user(request, uid): #展示用户信息
     return JsonResponse(response)
     
     
-def add_courses(request): #从课程中心获取用户所选课程并同步作业，url未完成
+def add_courses(request, uid): #从课程中心获取用户所选课程并同步作业，url未完成
     response = {}
     data = json.loads(request.body.decode())
     for d in data["courses"]:
         course = Course.objects.filter(name=d["course_name"],teacher=d["course_teacher"])
         if course.exists():
-            course_id=course.cid
+            course_id=Course.objects.get(name=d["course_name"],teacher=d["course_teacher"]).cid
         else:
             Course.objects.create(name=d["course_name"],teacher=d["course_teacher"])
             new_course=Course.objects.get(name=d["course_name"],teacher=d["course_teacher"])
             course_id=new_course.cid
             for a in d["assignments"]:
-                Task.objects.create(title=a["title"],course=new_course,content=a["content"],category="homework",urls=a["urls"],ddl_time=a["ddl_time"],notification_time=a["notification_time"],notification_content=a["notification_content"],notification_alert=a["notification_alert"])
-        usercourse = UserCourse.objects.filter(user__uid=data["uid"],course__cid=course_id)
+                Task.objects.create(title=a["title"],course=new_course,content=a["content"],category=a["category"],urls=a["urls"],platform=a["platform"],ddl_time=a["ddl_time"],notification_time=a["notification_time"],notification_content=a["notification_content"],notification_alert=a["notification_alert"])
+        usercourse = UserCourse.objects.filter(user__uid=uid,course__cid=course_id)
         if not usercourse.exists():
-            user_obj=User.objects.get(uid=data["uid"])
+            user_obj=User.objects.get(uid=uid)
             course_obj=Course.objects.get(cid=course_id)
             UserCourse.objects.create(user = user_obj, course = course_obj)
             for a in d["assignments"]:
-                task_obj = Task.objects.get(title=a["title"],course__cid=course_id,content=a["content"],category="homework",urls=a["urls"],ddl_time=a["ddl_time"],notification_time=a["notification_time"],notification_content=a["notification_content"],notification_alert=a["notification_alert"])
+                task_obj = Task.objects.get(title=a["title"],course__cid=course_id,content=a["content"],category=a["category"],urls=a["urls"],platform=a["platform"],ddl_time=a["ddl_time"],notification_time=a["notification_time"],notification_content=a["notification_content"],notification_alert=a["notification_alert"])
                 UserTask.objects.create(user = user_obj, task = task_obj)
     return JsonResponse(response)
     
@@ -65,19 +65,19 @@ def show_user_courses(request, uid): #用户查看自己所选课程
     usercourse = UserCourse.objects.filter(user__uid=uid)
     for c in usercourse:
         course = Course.objects.get(cid=c.course.cid)
-        response["data"] += [{
+        response["data"].append({
             "cid": course.cid,
             "course_name": course.name,
             "course_teacher": course.teacher,
             "is_admin": c.is_admin
-        }]  
+        })  
     return JsonResponse(response)
 
 
 def admin_add_task(request, cid): #课程管理员为选择了所有课的人添加task，participant由数据表关联得到，不需前端传入
     response={}
     data = json.loads(request.body.decode())
-    usercourse = UserCourse.objects.filter(user__uid=data["uid"],course__cid=cid)
+    usercourse = UserCourse.objects.get(user__uid=data["uid"],course__cid=cid)
     if usercourse.is_admin:
         course_obj = Course.objects.get(cid=cid)
         Task.objects.create(title=data["title"],course=course_obj,content=data["content"],category=data["category"],urls=data["urls"],ddl_time=data["ddl_time"],notification_time=data["notification_time"],notification_content=data["notification_content"],notification_alert=data["notification_alert"])
@@ -98,8 +98,7 @@ def add_task(request, uid): #用户个人添加task(需要选择或输入partici
     data = json.loads(request.body.decode())
     task = Task.objects.filter(tid=data["tid"])
     if task.exists(): #若此项task已存在则视为修改此task的属性信息
-        #验证修改权限
-        if UserTask.objects.filter(user__uid=uid,task__tid=data["tid"],is_admin=True).exists():
+        if UserTask.objects.filter(user__uid=uid,task__tid=data["tid"],is_admin=True).exists(): #验证修改权限
             task.update(title=data["title"])
             task.update(content=data["content"])
             task.update(platform=data["platform"])
@@ -113,8 +112,8 @@ def add_task(request, uid): #用户个人添加task(需要选择或输入partici
         else:
             response["msg"]="Cannot modify task."
     else: #不存在就创建新的task(传入的tid为空)
-        Task.objects.create(title=data["title"],content=data["content"],category=data["category"],urls=data["urls"],ddl_time=data["ddl_time"],notification_time=data["notification_time"],notification_content=data["notification_content"],notification_alert=data["notification_alert"])
-        task_obj = Task.objects.get(title=data["title"],content=data["content"],category=data["category"],urls=data["urls"],ddl_time=data["ddl_time"],notification_time=data["notification_time"],notification_content=data["notification_content"],notification_alert=data["notification_alert"])
+        Task.objects.create(title=data["title"],content=data["content"],category=data["category"],urls=data["urls"],platform=data["platform"],ddl_time=data["ddl_time"],notification_time=data["notification_time"],notification_content=data["notification_content"],notification_alert=data["notification_alert"])
+        task_obj = Task.objects.get(title=data["title"],content=data["content"],category=data["category"],urls=data["urls"],platform=data["platform"],ddl_time=data["ddl_time"],notification_time=data["notification_time"],notification_content=data["notification_content"],notification_alert=data["notification_alert"])
         response["msg"]="Create success."
         user_obj=User.objects.get(uid=uid)
         UserTask.objects.create(user=user_obj,task=task_obj,is_admin=True) #发布者有修改权
@@ -131,7 +130,7 @@ def show_user_tasks(request, uid): #用户查看自己的所有任务及ddl
     if usertask.exists():
         for t in usertask:
             if t.task.course is None:
-                response["data"] += [{
+                response["data"].append({
                     "tid": t.task.tid,
                     "title": t.task.title,
                     "course": t.task.course,
@@ -145,9 +144,9 @@ def show_user_tasks(request, uid): #用户查看自己的所有任务及ddl
                     "notification_alert": t.task.notification_alert,
                     "is_admin:": t.is_admin,
                     "is_finished": t.is_finished
-                }]   
+                })   
             else:
-                response["data"] += [{
+                response["data"].append({
                     "tid": t.task.tid,
                     "title": t.task.title,
                     "course": t.task.course.name,
@@ -161,7 +160,7 @@ def show_user_tasks(request, uid): #用户查看自己的所有任务及ddl
                     "notification_alert": t.task.notification_alert,
                     "is_admin:": t.is_admin,
                     "is_finished": t.is_finished
-                }]   
+                }) 
     else:
         response["msg"]="No tasks."
     return JsonResponse(response)
@@ -176,7 +175,7 @@ def show_course_tasks(request, uid, cid): #用户uid,相应课程cid
         if t.course.cid==cid:
             usertask = UserTask.objects.filter(user__uid=uid,task__tid=t.tid)
             for ut in usertask:
-                response["data"] += [{
+                response["data"].append({
                     "tid": t.tid,
                     "title": t.title,
                     "course": t.course.name,
@@ -190,7 +189,7 @@ def show_course_tasks(request, uid, cid): #用户uid,相应课程cid
                     "notification_alert": t.notification_alert,
                     "is_admin:": ut.is_admin,
                     "is_finished": ut.is_finished
-                }]       
+                })     
     return JsonResponse(response)
     
 def appoint_course_admin(request, cid, uid): #授予普通用户某门课程的管理权

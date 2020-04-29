@@ -23,7 +23,7 @@ urlpatterns = [
     path(r'user/<int:uid>/courses', views.show_user_courses),
     path(r'course/<int:cid>/tasks/new', views.admin_add_task),
     path(r'user/<int:uid>/tasks/new', views.add_task),
-    path(r'course/new', views.add_courses),
+    path(r'user/<int:uid>/courses/new', views.add_courses),
     path(r'course/<int:cid>/user/<int:uid>/appoint', views.appoint_course_admin),
     path(r'user/apply', views.create_user),
     path(r'user/<int:uid>/info', views.show_user),

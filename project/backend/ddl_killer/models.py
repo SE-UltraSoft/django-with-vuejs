@@ -32,7 +32,7 @@ class Task(models.Model):
     notification_time = models.DateTimeField(null=True, blank=True)
     notification_content = models.TextField(null=True, blank=True)
     notification_alert = models.BooleanField(default = True)
-    
+
     
 class UserTask(models.Model):
     user = models.ForeignKey('User', on_delete=models.CASCADE)
