@@ -28,11 +28,11 @@ class Task(models.Model):
     platform = models.CharField(max_length=20, null=True, blank=True)
     category = models.CharField(max_length=20)
     urls = models.CharField(max_length=200,null=True, blank=True)
-    ddl_time = models.DateTimeField(null=True, blank=True)
-    notification_time = models.DateTimeField(null=True, blank=True)
-    notification_content = models.TextField(null=True, blank=True)
+    ddl_time = models.CharField(max_length=50,null=True)
+    notification_time = models.CharField(max_length=50,null=True)
     notification_alert = models.BooleanField(default = True)
-
+    create_time = models.CharField(max_length=50,null=True)
+    
     
 class UserTask(models.Model):
     user = models.ForeignKey('User', on_delete=models.CASCADE)
