@@ -8,7 +8,7 @@
               column
                 active-class="primary--text"
               >
-                <v-chip v-for="tag in tags" :key="tag.cid" @click="chooseOne(tag)" 
+                <v-chip v-for="tag in tags" :key="tag.cid" @click="chooseOne(tag)"
                   class="ma-2" color="blue" outlined label
                 >
                   {{ tag.name }}
@@ -20,7 +20,7 @@
               :items="courses"
               label="已选课程"
               multiple
-              chips 
+              chips
               dense
             ></v-combobox-->
           <!--/v-col-->
@@ -347,9 +347,9 @@ var responseC = {
     },
 
     methods: {
-<<<<<<< HEAD
+//<<<<<<< HEAD
        //图表编辑 开始
-=======
+//=======
       //初始化已选课程
       initCourList(){
         //从后端获取课程信息 这边模拟的 var
@@ -367,7 +367,7 @@ var responseC = {
       },
 
       //图表编辑 开始
->>>>>>> 7be48cb761dd23e5b4fd75b96b956db936066930
+//>>>>>>> 7be48cb761dd23e5b4fd75b96b956db936066930
       initialize () {
         this.ddls = [
           {

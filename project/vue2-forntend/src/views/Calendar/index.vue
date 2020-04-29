@@ -179,6 +179,8 @@
                             v-model="form.alertTime"
                             type="datetime"
                             placeholder="选择日期时间"
+                            value-format="yyyy-MM-dd HH:mm:ss"
+                            format="yyyy-MM-dd HH:mm:ss"
                             default-time="12:00:00">
                           </el-date-picker>
                     </el-form-item>
@@ -186,7 +188,7 @@
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn color="blue darken-1" text @click="updateTaskSave">保存修改</v-btn>
+                  <v-btn color="blue darken-1" text @click="modifyTaskSave(selectedEvent)">保存修改</v-btn>
                   <v-btn color="blue darken-1" text @click="selectedOpen = false">取消</v-btn>
                 </v-card-actions>
               </v-card>
@@ -199,95 +201,8 @@
 </template>
 
 <script>
-var  responseL={
-    "success": true,
-    "message": "Success.",
-    "uid": 1,
-    "data": [ //这里的data是task集合
-        { // homework
-            "tid": 27,
-            "title": "团队博客——功能规格",
-            "category": "homework",
-            "content": "这是一篇团队博客",
-            "useful_urls": [
-                "www.edu.cnblogs.com/xxxxx",
-                "www.github.com/BuaaRedSun/docs"
-            ],
-            "platform": "博客园",
-            "cid": "1",
-            "course_name": "软件工程",
-            "ddl": {
-                "ddl_id": 13,
-            "ddl_time": "2020-04-10 23:55:00",
-                "notification_alert": true,
-            "notification_time": "2020-04-09 23:55:00",
-            "notification_repeat": null,
-            "notification_content": "交作业啦"
-            },
-            "created_at": "2020-03-20 15:33:20",
-            "is_finished": false
-        },
-        { // exam
-            "tid": 35,
-            "title": "工科数学分析期中考试",
-            "category": "exam",
-            "useful_urls": [], //集合size=1即可，空值有点奇怪
-            "platform": "教4-401",
-            "cid": "3",
-            "course_name": "工科数学分析",
-            "ddl": {
-                "ddl_id": 30,
-                "ddl_time": "2020-04-29 14:30:00",
-                "notification_alert": false,
-                "notification_time": "2020-04-29 14:30:00",
-                "notification_repeat": "day",
-                "notification_content": "淑芬考试",
-            },
-            "created_at": "2020-03-20 15:33:20",
-            "is_finished": false
-        },
-        { // personal
-            "tid": 42,
-            "title": "拿快递",
-            "category": "personal",
-            "useful_urls": null,
-            "platform": null,
-            "cid": null,
-            "course_name": null,
-            "ddl": {
-                "ddl_id": 50,
-                "ddl_time": "2020-04-20 17:30:00",
-                "notification_alert": true,
-                "notification_time": "2020-04-11 17:00",
-                "notification_repeat": null,
-                "notification_content": "东门顺丰快递"
-            },
-            "created_at": "2020-03-20 15:33:20",
-            "is_finished": true
-        },
-        { // meeting
-            "tid": 77,
-            "title": "志愿者例会",
-            "category": "meeting",
-            "useful_urls": [
-                "www.bv2008.cn"
-            ],
-            "platform": "志愿北京",
-            "cid": "1",
-            "course_name": null,
-            "ddl": {
-                "ddl_id": 70,
-                "ddl_time": "2020-04-23 14:30:00",
-                "notification_alert": true,
-                "notification_time": "2020-04-01 14:00:00",
-                "notification_repeat": "week",
-                "notification_content": "汇报周进展"
-            },
-            "created_at": "2020-03-20 15:33:20",
-            "is_finished": false
-        },
-    ]
-}
+import { getAllTasks, deleteOneTask,createOneTask,modifyOneTask } from "@/api/tasks"
+
 export default {
   name:'Calendar',
   data: () => ({
@@ -383,6 +298,13 @@ export default {
   mounted() {
     this.$refs.calendar.checkChange()
   },
+  created () {
+    getAllTasks().then(res => {  // fetch data
+        // return response
+        console.log(res)
+        this.initialize(res.data)
+    })
+  },
   methods: {
     viewDay({ date }) {
       this.focus = date
@@ -436,47 +358,14 @@ export default {
             return 'blue'
     },
     updateRange({ start, end }) {
-      const events = []
-      /*
-      const min = new Date(`${start.date}T00:00:00`)
-      const max = new Date(`${end.date}T23:59:59`)
-      const days = (max.getTime() - min.getTime()) / 86400000
-      //随机生成event
-
-      const eventCount = this.rnd(days, days + 20)
-      for (let i = 0; i < eventCount; i++) {
-        const allDay = this.rnd(0, 3) === 0
-        const firstTimestamp = this.rnd(min.getTime(), max.getTime())
-        const first = new Date(firstTimestamp - (firstTimestamp % 900000))
-        const secondTimestamp = this.rnd(2, allDay ? 288 : 8) * 900000
-        const second = new Date(first.getTime() + secondTimestamp)
-        events.push({
-          name: this.names[this.rnd(0, this.names.length - 1)],
-          start: this.formatDate(first, !allDay),
-          end: this.formatDate(second, !allDay),
-          color: this.colors[this.rnd(0, this.colors.length - 1)]
-        })
-        */
-      //为不同类型分配颜色
-      /*
-      const setColor = (type)=>  {
-          if(type ==='homework')
-              return 'orange'
-          else if(type ==="exam")
-              return 'red'
-          else if(type ==='meeting')
-              return 'green'
-          else if(type ==='personal')
-              return 'blue'
-          else
-              return 'blue'
-      }
-      */
-
-       //与后端交互  获得用户的全部tasks
-      if (responseL.success == true){ //成功查询返回
-        const rdata = responseL.data;
-        for (let i = 0; i < rdata.length; i++){
+      this.start = start
+      this.end = end
+    },
+    initialize(fetched_data) {
+      var events = []
+      console.log(fetched_data.data)
+      var rdata = fetched_data.data
+      for (let i = 0; i < rdata.length; i++){
           var ie = rdata[i]
           events.push({
             name: ie.title,
@@ -485,51 +374,40 @@ export default {
             detail: ie     //保存此task的全部信息
           })
         }
-      }
-      this.start = start
-      this.end = end
+      console.log(events.length)
+
       this.events = events
+      console.log(this.events)
     },
     deleteItem(event) {
       const index = this.events.indexOf(event)
       confirm('Are you sure you want to delete this item?') && this.events.splice(index, 1)
-      console.log(this.events)
+      console.log(event)
       this.selectedOpen = false
       //与后端交互 删除task
+      deleteOneTask(event.detail).then(res => {
+        console.log(res.data)
+      })
     },
     createTask(formName){
       this.$refs[formName].validate((valid) => {
+                var temp = this.createForm;
                 const ddl_date_time = this.createForm.ddlDay+' '+this.createForm.ddlTime;
                 const alert_date_time=this.createForm.alertDay+' '+this.createForm.alertTime;
-                var current = new Date();
+                const detail=this.formatDetail(-1,temp.name,temp.type,null,temp.platform,-1,temp.course,-1,
+                                           ddl_date_time,temp.alert,alert_date_time,this.formatDate(new Date(),true),false)
                 if (valid) {
                   var newEvent={
                     name:this.createForm.name,
                     start:ddl_date_time,
                     color:this.setColor(this.createForm.type),
-                    detail:{ // personal
-                        "tid":-1,
-                        "title": this.createForm.name,
-                        "category": this.createForm.type,
-                        "useful_urls": null,
-                        "platform": this.createForm.platform,
-                        "cid": null,
-                        "course_name": this.createForm.course,
-                        "ddl": {
-                            "ddl_id":-1,
-                            "ddl_time":ddl_date_time,
-                            "notification_alert": this.createForm.alert,
-                            "notification_time":alert_date_time,
-                            "notification_repeat": null,
-                            "notification_content": ''
-                        },
-                        "created_at":this.formatDate(current,true), //获取时间
-                        "is_finished": false
-                      }
+                    detail:detail
                     }
                   this.events.push(newEvent);
                   // 与后端交互 创建新task
-
+                  createOneTask(detail).then(res =>{
+                    console.log(res.data)
+                  })
                   this.$refs[formName].resetFields();
                   this.createOpen = false;
                 } else {
@@ -542,10 +420,18 @@ export default {
       this.$refs[formName].resetFields();
       this.createOpen = false
     },
-    updateTaskSave(event){
-
-      this.selectedOpen=false
+    modifyTaskSave(event){
       //与后端交互  修改task
+      event.detail.is_finished=this.form.done;
+      event.detail.ddl.notification_alert=this.form.alert;
+      event.detail.ddl.notification_time=this.form.alertTime ;
+      console.log(event.detail)
+      console.log(this.selectedEvent)
+      console.log(this.form)
+      modifyOneTask(event.detail).then(res =>{
+      console.log(res.data)
+      this.selectedOpen=false
+      })
      },
     nth(d) {
       return d > 3 && d < 21
@@ -559,6 +445,30 @@ export default {
       return withTime
         ? `${a.getFullYear()}-${a.getMonth() + 1}-${a.getDate()} ${a.getHours()}:${a.getMinutes()}:${a.getSeconds()}`
         : `${a.getFullYear()}-${a.getMonth() + 1}-${a.getDate()}`
+    },
+
+    //生成detail格式，与从后台获取的json中的data格式相同
+    formatDetail(tid,title,category,urls,platform,cid,cname,ddl_id,ddl_time,alert,alert_time,create_time,done){
+      var detail = { // personal
+          "tid":tid,
+          "title":title,
+          "category": category,
+          "useful_urls": null,
+          "platform": platform,
+          "cid": null,
+          "course_name": cname,
+          "ddl": {
+              "ddl_id":ddl_id,
+              "ddl_time":ddl_time,
+              "notification_alert":alert,
+              "notification_time":alert_time,
+              "notification_repeat": null,
+              "notification_content": ''
+          },
+          "created_at":create_time, //获取时间
+          "is_finished": done
+        }
+        return detail;
     }
   }
 }
