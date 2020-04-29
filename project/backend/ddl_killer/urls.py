@@ -18,25 +18,15 @@ from django.urls import path, include
 from . import views
 
 urlpatterns = [
-    path('api/users/<int:student_id>/verify', views.user_verify),
-    path('api/users/email/verify', views.send_verify_email),
-    path('api/users/email/verify/<int:uid>/<int:verification_code>', views.verify_email),
-    path('api/course/<int:course_id>/ddls', views.get_course_ddls),
-    path('api/user/<int:uid>/ddls', views.get_user_ddls),
-    path('api/ddls', views.get_all_ddls),
-    path('api/user/<int:uid>/task/<int:tid>', views.get_user_tasks),
-    path('api/user/<int:uid>/courses', views.get_user_tasks),
-    path('api/tasks', views.get_all_tasks),
-    path('api/course/quit', views.quit_course),
-    path('api/course/apply', views.apply_course),
-    path('api/task/<int:tid>/alert', views.set_alert),
-    path('api/course/<int:cid>/appoint', views.appoint_course_leader),
-    path('api/user/apply', views.user_apply),
-    path('api/user/<int:uid>/info', views.get_user_info),
-    path('api/user/<int:uid>/modify', views.modify_user_info),
-
-
-
-    path('admin/', admin.site.urls),
+    path(r'user/<int:uid>/course/<int:cid>/tasks', views.show_course_tasks),
+    path(r'user/<int:uid>/tasks', views.show_user_tasks),
+    path(r'user/<int:uid>/courses', views.show_user_courses),
+    path(r'course/<int:cid>/tasks/new', views.admin_add_task),
+    path(r'user/<int:uid>/tasks/new', views.add_task),
+    path(r'course/new', views.add_courses),
+    path(r'course/<int:cid>/user/<int:uid>/appoint', views.appoint_course_admin),
+    path(r'user/apply', views.create_user),
+    path(r'user/<int:uid>/info', views.show_user),
+    path(r'user/<int:uid>/task/<int:tid>/finish', views.finish_task),
 
 ]
