@@ -2,13 +2,13 @@
   <div class="login-container">
     <!-- <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="login-form" auto-complete="on"
       label-position="left"> -->
-    <el-row type="flex" justify="center" style="margin-top: 20px">
+    <el-row type="flex" justify="center" style="margin-top: 40px">
       <el-col :span="10">
-      <el-card style="background-color: #3f5c6d2c;">
+      <!--el-card style="background-color: #3f5c6d2c;"-->
       <el-form ref="ruleForm" :model="ruleForm" :rules="rules" class="login-form" auto-complete="on" label-position="left">
 
         <div class="title-container">
-          <h3 class="title">Register</h3>
+          <h2 class="title">Register</h2>
         </div>
 
         <el-form-item prop="uid">
@@ -40,7 +40,7 @@
             auto-complete="on"
           />
         </el-form-item>
-        
+
         <el-form-item prop="email">
           <span class="svg-container">
             <i class="el-icon-message"></i>
@@ -56,14 +56,15 @@
               </span>
             </el-col>
             <el-col :span="16" style="margin-left: -5px">
-              <el-input placeholder="验证码" v-model="ruleForm.ecode"></el-input>
+              <el-input placeholder="验证码" v-model="ruleForm.ecode" color="#ffffff"></el-input>
             </el-col>
-            <el-col :span="6" style="margin-top: 5px">
-              <el-button @click="mailVertify">发送验证码</el-button>
+            <el-col :span="6" style="margin-top: 5px" align="right">
+              <!--el-button @click="mailVertify" type="text">发送验证码</el-button-->
+              <v-btn text @click="mailVertify" color="#ffffff">发送验证码</v-btn>
             </el-col>
           </el-row>
         </el-form-item>
-        
+
 
         <el-form-item prop="pass">
           <span class="svg-container">
@@ -94,16 +95,16 @@
 
         <el-form-item>
           <!-- <el-button type="primary" @click="submitForm('ruleForm')">提交</el-button> -->
-          <el-button type="primary" style="width:100%;" 
+          <el-button type="primary" style="width:100%;"
             @click.native.prevent="submitForm('ruleForm')">注册</el-button>
         </el-form-item>
 
-        <div class="tips">
-          <span style="margin-right:20px;">已有账号？<el-link type="primary" @click="login">点击登录</el-link></span>
+        <div class="tips" align="right">
+          <span style="margin-right:20px;"><el-link type="white" @click="login">已有账号？点击登录</el-link></span>
         </div>
 
       </el-form>
-      </el-card>
+      <!--/el-card-->
       </el-col>
     </el-row>
   </div>

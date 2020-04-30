@@ -1,12 +1,12 @@
 <template>
   <div class="login-container">
-    <el-row type="flex" justify="center" style="margin-top: 100px">
+    <el-row type="flex" justify="center" style="margin-top: 180px">
       <el-col :span="10">
-        <el-card style="background-color: #3f5c6d2c;">
+        <!--el-card style="background-color: #3f5c6d2c;"-->
           <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
 
             <div class="title-container">
-              <h3 class="title">Login</h3>
+              <h2 class="title">Login</h2>
             </div>
 
             <el-form-item prop="username">
@@ -44,13 +44,13 @@
               </span>
             </el-form-item>
 
-            <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">Login</el-button>
+            <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">登录</el-button>
 
-            <div class="tips">
-              <span style="margin-right:20px;">还没有账号？<el-link type="primary" @click="regis">点击注册</el-link></span>
+            <div class="tips" align="right">
+              <span style="margin-right:20px;"><el-link type="white" @click="regis">还没有账号？点击注册</el-link></span>
             </div>
           </el-form>
-        </el-card>
+        <!--/el-card-->
       </el-col>
     </el-row>
   </div>
