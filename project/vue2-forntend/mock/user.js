@@ -39,7 +39,9 @@ export default [
     type: 'post',
     response: config => {
       const { username } = config.body
-      const token = tokens[username]
+      // const token = tokens[username]
+      console.log(username)
+      const token = tokens['admin']
 
       // mock error
       if (!token) {
@@ -76,7 +78,9 @@ export default [
     type: 'get',
     response: config => {
       const { token } = config.query
-      const info = users[token]
+      // const info = users[token]
+      console.log(token)
+      const info = users['1234567']
 
       console.log(config.query)
       // mock error

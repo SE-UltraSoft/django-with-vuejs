@@ -15,6 +15,8 @@ import router from './router'
 import '@/icons' // icon
 import '@/permission' // permission control
 
+import 'material-design-icons-iconfont/dist/material-design-icons.css' // material icon
+
 
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
