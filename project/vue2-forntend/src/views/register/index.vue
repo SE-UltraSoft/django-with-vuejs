@@ -2,100 +2,110 @@
   <div class="login-container">
     <!-- <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="login-form" auto-complete="on"
       label-position="left"> -->
-    <el-form ref="ruleForm" :model="ruleForm" :rules="rules" class="login-form" auto-complete="on" label-position="left">
+    <el-row type="flex" justify="center" style="margin-top: 20px">
+      <el-col :span="10">
+      <el-card style="background-color: #3f5c6d2c;">
+      <el-form ref="ruleForm" :model="ruleForm" :rules="rules" class="login-form" auto-complete="on" label-position="left">
 
-      <div class="title-container">
-        <h3 class="title">Register</h3>
-      </div>
+        <div class="title-container">
+          <h3 class="title">Register</h3>
+        </div>
 
-      <el-form-item prop="uid">
-        <span class="svg-container">
-          <svg-icon icon-class="user" />
-        </span>
-        <el-input
-          ref="uid"
-          v-model="ruleForm.uid"
-          placeholder="学号"
-          name="uid"
-          type="text"
-          tabindex="1"
-          auto-complete="on"
-        />
-      </el-form-item>
+        <el-form-item prop="uid">
+          <span class="svg-container">
+            <svg-icon icon-class="user" />
+          </span>
+          <el-input
+            ref="uid"
+            v-model="ruleForm.uid"
+            placeholder="学号"
+            name="uid"
+            type="text"
+            tabindex="1"
+            auto-complete="on"
+          />
+        </el-form-item>
 
-      <el-form-item prop="username">
-        <span class="svg-container">
-          <svg-icon icon-class="user" />
-        </span>
-        <el-input
-          ref="username"
-          v-model="ruleForm.username"
-          placeholder="用户名"
-          name="username"
-          type="text"
-          tabindex="1"
-          auto-complete="on"
-        />
-      </el-form-item>
-      
-      <el-form-item prop="email">
-        <span class="svg-container">
-          <i class="el-icon-message"></i>
-        </span>
-        <el-input placeholder="邮箱" v-model="ruleForm.email"></el-input>
-      </el-form-item>
+        <el-form-item prop="username">
+          <span class="svg-container">
+            <svg-icon icon-class="user" />
+          </span>
+          <el-input
+            ref="username"
+            v-model="ruleForm.username"
+            placeholder="用户名"
+            name="username"
+            type="text"
+            tabindex="1"
+            auto-complete="on"
+          />
+        </el-form-item>
+        
+        <el-form-item prop="email">
+          <span class="svg-container">
+            <i class="el-icon-message"></i>
+          </span>
+          <el-input placeholder="邮箱" v-model="ruleForm.email"></el-input>
+        </el-form-item>
 
-      <el-form-item prop="ecode">
-        <el-row style="text-align: cener">
-          <el-col :span="2">
-            <span class="svg-container">
-              <i class="el-icon-edit-outline"></i>
-            </span>
-          </el-col>
-          <el-col :span="16" style="margin-left: -5px">
-            <el-input placeholder="验证码" v-model="ruleForm.ecode"></el-input>
-          </el-col>
-          <el-col :span="6" style="margin-top: 5px">
-            <el-button @click="mailVertify">发送验证码</el-button>
-          </el-col>
-        </el-row>
-      </el-form-item>
-      
+        <el-form-item prop="ecode">
+          <el-row style="text-align: cener">
+            <el-col :span="2">
+              <span class="svg-container">
+                <i class="el-icon-edit-outline"></i>
+              </span>
+            </el-col>
+            <el-col :span="16" style="margin-left: -5px">
+              <el-input placeholder="验证码" v-model="ruleForm.ecode"></el-input>
+            </el-col>
+            <el-col :span="6" style="margin-top: 5px">
+              <el-button @click="mailVertify">发送验证码</el-button>
+            </el-col>
+          </el-row>
+        </el-form-item>
+        
 
-      <el-form-item prop="pass">
-        <span class="svg-container">
-          <svg-icon icon-class="password" />
-        </span>
-        <el-input
-          :key="passwordType"
-          ref="pass"
-          v-model="ruleForm.pass"
-          :type="passwordType"
-          placeholder="密码"
-          name="password"
-          tabindex="2"
-          auto-complete="on"
-          @keyup.enter.native="handleSubmit"
-        />
-        <span class="show-pwd" @click="showPwd">
-          <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
-        </span>
-      </el-form-item>
+        <el-form-item prop="pass">
+          <span class="svg-container">
+            <svg-icon icon-class="password" />
+          </span>
+          <el-input
+            :key="passwordType"
+            ref="pass"
+            v-model="ruleForm.pass"
+            :type="passwordType"
+            placeholder="密码"
+            name="password"
+            tabindex="2"
+            auto-complete="on"
+            @keyup.enter.native="handleSubmit"
+          />
+          <span class="show-pwd" @click="showPwd">
+            <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
+          </span>
+        </el-form-item>
 
-      <el-form-item prop="checkPass">
-        <span class="svg-container">
-          <svg-icon icon-class="password" />
-        </span>
-        <el-input type="password" placeholder="确认密码" v-model="ruleForm.checkPass" autocomplete="off"/>
-      </el-form-item>
+        <el-form-item prop="checkPass">
+          <span class="svg-container">
+            <svg-icon icon-class="password" />
+          </span>
+          <el-input type="password" placeholder="确认密码" v-model="ruleForm.checkPass" autocomplete="off"/>
+        </el-form-item>
 
-      <el-form-item>
-        <!-- <el-button type="primary" @click="submitForm('ruleForm')">提交</el-button> -->
-         <el-button type="primary" style="width:100%;" 
-          @click.native.prevent="submitForm('ruleForm')">注册</el-button>
-      </el-form-item>
-      
-    </el-form>
+        <el-form-item>
+          <!-- <el-button type="primary" @click="submitForm('ruleForm')">提交</el-button> -->
+          <el-button type="primary" style="width:100%;" 
+            @click.native.prevent="submitForm('ruleForm')">注册</el-button>
+        </el-form-item>
+
+        <div class="tips">
+          <span style="margin-right:20px;">已有账号？<el-link type="primary" @click="login">点击登录</el-link></span>
+        </div>
+
+      </el-form>
+      </el-card>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
@@ -208,6 +218,9 @@ import { register } from '@/api/user'
       },
       resetForm(formName) {
         this.$refs[formName].resetFields();
+      },
+      login() {
+        this.$router.push({ path: '/login' })
       }
     }
   }
@@ -269,13 +282,33 @@ $cursor: #fff;
 
 <style lang="scss" scoped>
 $bg:#2d3a4b;
-$dark_gray:#889aa4;
-$light_gray:#eee;
+// $dark_gray:#889aa4;
+// $light_gray:#eee;
+$white: #ffffff;
+
+.cardColor {
+  background-color: #9a9c9c2c;;
+}
 
 .login-container {
   min-height: 100%;
   width: 100%;
-  background-color: $bg;
+
+  background-image: url('../../assets/bgd.png');
+  top: 0;
+  left: 0;
+  width:100%;
+  height:100%;
+  min-width: 1000px;
+  z-index:-10;
+  zoom: 1;
+  background-color: #fff;
+  background-repeat: no-repeat;
+  background-size: cover;
+  -webkit-background-size: cover;
+  -o-background-size: cover;
+  background-position: center 0;
+  // background-color: $bg;
   overflow: hidden;
 
   .login-form {
@@ -301,7 +334,8 @@ $light_gray:#eee;
 
   .svg-container {
     padding: 6px 5px 6px 15px;
-    color: $dark_gray;
+    // color: $dark_gray;
+    color: $white;
     vertical-align: middle;
     width: 30px;
     display: inline-block;
@@ -312,7 +346,8 @@ $light_gray:#eee;
 
     .title {
       font-size: 26px;
-      color: $light_gray;
+      // color: $light_gray;
+      color: $white;
       margin: 0px auto 40px auto;
       text-align: center;
       font-weight: bold;
@@ -324,7 +359,8 @@ $light_gray:#eee;
     right: 10px;
     top: 7px;
     font-size: 16px;
-    color: $dark_gray;
+    // color: $dark_gray;
+    color: $white;
     cursor: pointer;
     user-select: none;
   }
