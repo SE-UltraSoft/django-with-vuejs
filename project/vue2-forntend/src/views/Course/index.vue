@@ -9,7 +9,7 @@
           <v-chip v-for="tag in tags" :key="tag.cid" @click="chooseOne(tag)"
             class="ma-2" color="#1565C0" outlined label
           >
-            {{ tag.name }}
+            {{ tag.course_name }}
           </v-chip>
         </v-chip-group>
 
@@ -52,13 +52,16 @@
                   <thead>
                     <tr>
                       <th class="text-left">资源名称</th>
-                      <th class="text-left">资源链接</th>
+                      <th class="text-left">提取码</th>
+                      <th class="text-left">分享人</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr v-for="item in srcs" :key="item.name">
-                      <td>{{ item.name }}</td>
-                      <td>{{ item.url }}</td>
+                      <td><a v-bind:href="item.url"> {{item.name}}</a></td>
+                      <td v-if="item.pss!=''">{{ item.pss }}</td>
+                      <td v-else></td>
+                      <td>{{ item.sharer }}</td>
                     </tr>
                   </tbody>
                 </template>
@@ -73,6 +76,9 @@
                   </el-form-item>
                   <el-form-item label="分享链接">
                     <el-input v-model="fileSubmit.furl" placeholder="分享链接"></el-input>
+                  </el-form-item>
+                  <el-form-item label="提取码">
+                    <el-input v-model="fileSubmit.fpss" placeholder="提取码"></el-input>
                   </el-form-item>
                   <el-form-item>
                     <el-button type="primary" :disabled="!(fileSubmit.furl&&fileSubmit.ftitle)" @click="onFileSubmit">分享</el-button>
@@ -90,22 +96,10 @@
 </template>
 
 <script>
+  import { getUserCourses } from '@/api/course';
   import Eventlist from '../Eventlist/index.vue'
   //DDL列表 开始
   //DDL列表 结束
-  var responseC = {
-    data:[
-      {
-        name:'软件工程',
-        cid:1,
-      },
-      {
-        name:'计算机网络',
-        cid:2,
-      },
-    ]
-  };
-
 
   export default {
     components: {
@@ -129,14 +123,14 @@
         { text: '更多', value: 'data-table-expand' },
       ],
       ddls: [],
-      expanded: [],
       ////////////////////////////////////DDL列表 结束
       tags: [],
 
       srcs: [],
       fileSubmit: {
         ftitle: '',
-        furl: ''
+        furl: '',
+        fpss: '',
       },
 
     }),
@@ -151,12 +145,18 @@
 
     methods: {
       initialize () {
-        for (let i = 0; i < responseC.data.length; i++) {
-          this.tags.push(responseC.data[i]);
-        }
+        getUserCourses(this.$store.getters.uid).then(res => {
+          console.log(res)
+          if (res.data.success) {
+            var r_courses = res.data.courses;
+            for (let i = 0; i < r_courses.data.length; i++) {
+              this.tags.push(r_courses.data[i]);
+            }
+          }
+        })
       },
       chooseOne(item) {
-        alert("choose" + item.name);
+        alert("choose" + item.course_name);
         this.updatePage();
       },
       updatePage () {
@@ -186,10 +186,14 @@
           {
             name: '计算机网络课程笔记',
             url: 'https://www.buaa.edu.cn',
+            pss: '',
+            sharer: '小小软',
           },
           {
             name: '软件工程学习资料',
             url: 'https://pan.baidu.com',
+            pss: '2020',
+            sharer: '大大软',
           },
         ]
         var i
