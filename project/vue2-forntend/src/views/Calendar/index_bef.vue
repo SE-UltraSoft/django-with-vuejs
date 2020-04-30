@@ -36,57 +36,59 @@
                   </v-toolbar>
                   <v-card-text>
                     <p></p>
-                    <el-form ref="newForm" :model="newForm" :rules="createRule" label-width="110px">
-                      <el-form-item label="事项名称" prop="title">
-                        <el-input v-model="newForm.title"></el-input>
+                    <el-form ref="createForm" :model="createForm" :rules="createRule" label-width="110px">
+                      <el-form-item label="事项名称" prop="name">
+                        <el-input v-model="createForm.name"></el-input>
                       </el-form-item>
-                      <el-form-item label="事项类型" >
-                        <el-select v-model="newForm.category" placeholder="请选择类型">
+                      <el-form-item label="事项类型">
+                        <el-select v-model="createForm.type" placeholder="请选择类型">
                           <el-option label="个人" value="personal"></el-option>
+                          <el-option label="作业" value="homework"></el-option>
                           <el-option label="会议" value="meeting"></el-option>
+                          <el-option label="考试" value="exam"></el-option>
                         </el-select>
                       </el-form-item>
-                      <el-form-item label="相关平台" prop="platform">
-                        <el-input v-model="newForm.platform"></el-input>
+                      <el-form-item label="关联课程" v-if="createForm.type=='homework'">
+                        <el-input v-model="createForm.course"></el-input>
                       </el-form-item>
-                      <el-form-item label="相关链接" prop="urls">
-                        <el-input v-model="newForm.urls"></el-input>
+                      <el-form-item label="相关平台" v-if="createForm.type=='homework'">
+                        <el-input v-model="createForm.platform"></el-input>
                       </el-form-item>
-                      <el-form-item label="截止时间" required>
+                      <el-form-item label="截止时间">
                         <el-col :span="11">
                           <el-form-item prop="ddlDay">
-                            <el-date-picker  value-format="yyyy-MM-dd" format="yyyy-MM-dd" placeholder="选择日期"  v-model="newForm.ddlDay" style="width: 100%;"></el-date-picker>
+                            <el-date-picker  value-format="yyyy-MM-dd" format="yyyy-MM-dd" placeholder="选择日期"  v-model="createForm.ddlDay" style="width: 100%;"></el-date-picker>
                           </el-form-item>
                         </el-col>
                         <el-col class="line" :span="2">-</el-col>
                         <el-col :span="11">
                           <el-form-item prop="ddlTime">
-                            <el-time-picker value-format="HH:mm:ss" format="HH:mm:ss" placeholder="选择时间" v-model="newForm.ddlTime" style="width: 100%;"></el-time-picker>
+                            <el-time-picker value-format="HH:mm:ss" format="HH:mm:ss" placeholder="选择时间" v-model="createForm.ddlTime" style="width: 100%;"></el-time-picker>
                           </el-form-item>
                         </el-col>
                       </el-form-item>
-                      <el-form-item label="详细描述" prop="content">
-                        <el-input type="textarea" v-model="newForm.content"></el-input>
+                      <el-form-item label="开启提醒" prop="alert">
+                        <el-switch v-model="createForm.alert"></el-switch>
                       </el-form-item>
-                      <el-form-item label="开启提醒" prop="notification_alert">
-                        <el-switch v-model="newForm.notification_alert"></el-switch>
-                      </el-form-item>
-                      <el-form-item label="提醒时间" v-if="newForm.notification_alert==true">
+                      <el-form-item label="提醒时间" v-if="createForm.alert==true">
                         <el-col :span="11">
                           <el-form-item prop="alertDay">
-                            <el-date-picker  value-format="yyyy-MM-dd" format="yyyy-MM-dd" placeholder="选择日期" v-model="newForm.alertDay" style="width: 100%;"></el-date-picker>
+                            <el-date-picker  value-format="yyyy-MM-dd" format="yyyy-MM-dd" placeholder="选择日期" v-model="createForm.alertDay" style="width: 100%;"></el-date-picker>
                           </el-form-item>
                         </el-col>
                         <el-col class="line" :span="2">-</el-col>
                         <el-col :span="11">
                           <el-form-item prop="alertTime">
-                            <el-time-picker value-format="HH:mm:ss" format="HH:mm:ss" placeholder="选择时间" v-model="newForm.alertTime" style="width: 100%;"></el-time-picker>
+                            <el-time-picker value-format="HH:mm:ss" format="HH:mm:ss" placeholder="选择时间" v-model="createForm.alertTime" style="width: 100%;"></el-time-picker>
                           </el-form-item>
                         </el-col>
                       </el-form-item>
-                      <el-form-item  label="其他参与成员" prop="participant">
+                      <el-form-item label="是否提醒他人" v-if="createForm.type!=personal" prop="alertOther">
+                        <el-switch v-model="createForm.alertOther"></el-switch>
+                      </el-form-item>
+                      <el-form-item v-if="createForm.alertOther==true" label="事项相关成员" prop="remindValue">
                         <el-select
-                            v-model="newForm.participant"
+                            v-model="createForm.remindValue"
                             multiple
                             filterable
                             allow-create
@@ -98,8 +100,8 @@
                   </v-card-text>
                   <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="blue darken-1" text @click="createTask('newForm')">立即创建</v-btn>
-                    <v-btn color="blue darken-1" text @click="createCancel('newForm')">取消</v-btn>
+                    <v-btn color="blue darken-1" text @click="createTask('createForm')">立即创建</v-btn>
+                    <v-btn color="blue darken-1" text @click="createCancel('createForm')">取消</v-btn>
                   </v-card-actions>
                 </v-card>
               </v-dialog>
@@ -139,7 +141,7 @@
 
                   <v-toolbar-title class="pl-2" v-html="selectedEvent.name"></v-toolbar-title>
                   <v-spacer></v-spacer>
-                  <v-btn icon v-if="false">
+                  <v-btn icon>
                     <v-icon
                       small
                       @click="deleteItem(selectedEvent)"
@@ -150,47 +152,31 @@
                 </v-toolbar>
                 <v-card-text >
                   <p></p>
-                  <el-form ref="detailForm" :model="detailForm" label-width="100px" size="mini">
-                    <el-form-item label="发布时间">
-                      <span v-text="detailForm.create_time"></span>
-                    </el-form-item>
+                  <el-form ref="form" :model="form" label-width="100px">
                     <el-form-item label="截止时间">
-                      <el-date-picker
-                            v-show="detailForm.is_admin==true"
-                            v-model="detailForm.ddl_time"
-                            type="datetime"
-                            placeholder="选择日期时间"
-                            value-format="yyyy-MM-dd HH:mm:ss"
-                            format="yyyy-MM-dd HH:mm:ss"
-                            >
-                          </el-date-picker>
-                      <span v-show="detailForm.is_admin==false" v-text="detailForm.ddl_time"></span>
+                      <span v-text="form.ddlTime"></span>
                     </el-form-item>
-
+                    <el-form-item label="发布时间">
+                      <span v-text="form.startTime"></span>
+                    </el-form-item>
                     <el-form-item label="事项分类">
-                      <span v-text="detailForm.category"></span>
+                      <span v-text="form.type"></span>
                     </el-form-item>
-                    <el-form-item label="关联课程" v-show="detailForm.course!=null" >
-                      <span v-text="detailForm.course"></span>
+                    <el-form-item v-if="form.type=='homework'" label="关联课程">
+                      <span v-text="form.course"></span>
                     </el-form-item>
-                    <el-form-item  label="相关平台" v-show="detailForm.platform!=null">
-                      <span v-text="detailForm.platform"></span>
+                    <el-form-item v-if="form.type=='homework'" label="提交平台">
+                      <span v-text="form.platform"></span>
                     </el-form-item>
-                    <el-form-item label="相关链接" v-show="detailForm.urls!=null">
-                        <a :href="detailForm.urls" target="_Blank"> {{ detailForm.urls }} </a>
-                    </el-form-item>
-                    <el-form-item label="详细描述">
-                        <el-input type="textarea" v-model="detailForm.content" :disabled="detailForm.is_admin==false"></el-input>
-                      </el-form-item>
                     <el-form-item label="完成状态">
-                      <el-switch v-model="detailForm.is_finished" active-color="#13ce66"></el-switch>
+                      <el-switch v-model="form.done" active-color="#13ce66"></el-switch>
                     </el-form-item>
                     <el-form-item label="开启提醒功能">
-                      <el-switch v-model="detailForm.notification_alert"></el-switch>
+                      <el-switch v-model="form.alert"></el-switch>
                     </el-form-item>
-                    <el-form-item label="提醒时间" v-show="detailForm.notification_alert==true">
+                    <el-form-item label="提醒时间">
                       <el-date-picker
-                            v-model="detailForm.notification_time"
+                            v-model="form.alertTime"
                             type="datetime"
                             placeholder="选择日期时间"
                             value-format="yyyy-MM-dd HH:mm:ss"
@@ -215,7 +201,7 @@
 </template>
 
 <script>
-import { getAllTasks, createOneTask, modifyOneTask } from "@/api/user_task"
+import { getAllTasks, deleteOneTask,createOneTask,modifyOneTask } from "@/api/tasks"
 
 export default {
   name:'Calendar',
@@ -236,56 +222,13 @@ export default {
         name: '',
         startTime: '',
         ddlTime: '',
-        type: '', //事件分类
+        type: '',//事件分类
         platform:'',
         course: '',
         done: false,
         alert: true,
         alertTime: ''
       },
-    detailForm:{  //详情页
-        tid:-1,
-        title:'',
-        category:'',
-        course:'',
-        content: '',
-        platform:'',
-        urls:'',
-        create_time: '',
-        ddl_time:'',
-        notification_alert:false,
-        notification_time: '',
-        is_admin:false,
-        is_finished: false
-    },
-    defaultForm:{ //默认创建页
-       tid: -1,
-       title: '',
-       category: 'personal',
-       content: '',
-       platform: '',
-       urls:'',
-       ddlDay:'',
-       ddlTime:'',
-       alertDay:'',
-       alertTime:'',
-       notification_alert:false,
-       participant: []
-    },
-    newForm:{//创建日程界面
-        tid: -1,
-        title: '',
-        category: 'personal',
-        content: '',
-        platform: '',
-        urls:'',
-        ddlDay:'',
-        ddlTime:'',
-        alertDay:'',
-        alertTime:'',
-        notification_alert:false,
-        participant: []
-    },
     createForm: {
         name: '',
         type: "personal",
@@ -300,7 +243,7 @@ export default {
         remindValue: []
       },
     createRule:{
-      title:[
+      name:[
          { required: true, message: '请输入事项名称', trigger: 'blur' },
       ],
       ddlDay:[
@@ -315,8 +258,8 @@ export default {
       alertTime:[
         {  required: true, message: '请选择时间', trigger: 'change' },
       ],
-      paticipant: [
-        { type: 'array', trigger: 'change' }
+      remindValue: [
+        { type: 'array', required: true, message: '请至少输入一个学号', trigger: 'change' }
       ],
     }
 
@@ -356,7 +299,11 @@ export default {
     this.$refs.calendar.checkChange()
   },
   created () {
-   this.initialize()
+    getAllTasks().then(res => {  // fetch data
+        // return response
+        console.log(res)
+        this.initialize(res.data)
+    })
   },
   methods: {
     viewDay({ date }) {
@@ -375,23 +322,21 @@ export default {
     next() {
       this.$refs.calendar.next()
     },
-    showEvent({ nativeEvent, event }) { //显示详情页
+    showEvent({ nativeEvent, event }) {
       const open = () => {
         this.selectedEvent = event
         this.selectedElement = nativeEvent.target
-        this.detailForm = Object.assign({}, event.detail)
         setTimeout(() => this.selectedOpen = true, 10)
-
-        //console.log(event.detail)
-
-        //改变event.detail的值，前面的event.detail都将更改 但是detailForm不受影响
-        /*
-        console.log(this.detailForm)
-        event.detail.tid=-1
-        console.log(this.detailForm)
-        */
+        //详情展示
+        this.form.ddlTime = event.start;
+        this.form.startTime = event.detail.created_at;
+        this.form.type = event.detail.category;
+        this.form.done= event.detail.is_finished;
+        this.form.alert = event.detail.ddl.notification_alert;
+        this.form.alertTime = event.detail.ddl.notification_time;
+        this.form.course=event.detail.course_name;
+        this.form.platform=event.detail.platform;
       }
-
       if (this.selectedOpen) {
         this.selectedOpen = false
         setTimeout(open, 10)
@@ -415,30 +360,25 @@ export default {
     updateRange({ start, end }) {
       this.start = start
       this.end = end
-      //this.intialize()
     },
-    initialize() { //从后端获取全部的task 赋值给events
-      getAllTasks().then(res => {
-          console.log(res)
-          var events = []
-          var fetched_data=res.data
-          console.log(fetched_data.data)
-          var rdata = fetched_data.data
-          for (let i = 0; i < rdata.length; i++){
-              var ie = rdata[i]
-              events.push({
-                name: ie.title,
-                start: ie.ddl_time,
-                color: this.setColor(ie.category),
-                detail: ie     //保存此task的全部信息
-              })
-            }
-          console.log(events.length)
-          this.events = events
-          console.log(this.events)
-      })
+    initialize(fetched_data) {
+      var events = []
+      console.log(fetched_data.data)
+      var rdata = fetched_data.data
+      for (let i = 0; i < rdata.length; i++){
+          var ie = rdata[i]
+          events.push({
+            name: ie.title,
+            start: ie.ddl.ddl_time,
+            color: this.setColor(ie.category),
+            detail: ie     //保存此task的全部信息
+          })
+        }
+      console.log(events.length)
+
+      this.events = events
+      console.log(this.events)
     },
-    /*
     deleteItem(event) {
       const index = this.events.indexOf(event)
       confirm('Are you sure you want to delete this item?') && this.events.splice(index, 1)
@@ -449,42 +389,27 @@ export default {
         console.log(res.data)
       })
     },
-    */
     createTask(formName){
       this.$refs[formName].validate((valid) => {
+                var temp = this.createForm;
+                const ddl_date_time = this.createForm.ddlDay+' '+this.createForm.ddlTime;
+                const alert_date_time=this.createForm.alertDay+' '+this.createForm.alertTime;
+                const detail=this.formatDetail(-1,temp.name,temp.type,null,temp.platform,-1,temp.course,-1,
+                                           ddl_date_time,temp.alert,alert_date_time,this.formatDate(new Date(),true),false)
                 if (valid) {
-                    var temp = this.newForm; //temp为引用 newForm 改变时 temp也会改变;temp改变时，newForm也会改变
-                    const ddl_date_time = temp.ddlDay+' '+temp.ddlTime;
-                    const alert_date_time = temp.alertDay+' '+temp.alertTime;
-                    const create_time = this.formatDate(new Date(),true)
-                    var detail = Object.assign({},temp) //temp的拷贝
-                    detail.ddl_time = ddl_date_time;
-                    detail.notification_time = alert_date_time
-                    detail.create_time = create_time
-                    delete detail.ddlDay
-                    delete detail.ddlTime
-                    delete detail.alertDay
-                    delete detail.alertTime
-                    //@ 与后端交互 创建新task
-                    createOneTask(JSON.stringify(detail)).then(res =>{
-                      console.log(res.data)
-                    })
-
-                    //@这边应该是后端更新完之后(分配完tid) 再调 this.initialize()或者创建返回新的tid? 暂时这么写让前端渲染新建的事项
-                    detail['course']=null
-                    detail['is_finished']=false
-                    detail['is_admin'] =true
-                    var newEvent={
-                    name:temp.title,
+                  var newEvent={
+                    name:this.createForm.name,
                     start:ddl_date_time,
-                    color:this.setColor(temp.category),
+                    color:this.setColor(this.createForm.type),
                     detail:detail
                     }
-                    this.events.push(newEvent);
-                    //
-                    //重置表单
-                    this.$refs[formName].resetFields();
-                    this.createOpen = false;
+                  this.events.push(newEvent);
+                  // 与后端交互 创建新task
+                  createOneTask(detail).then(res =>{
+                    console.log(res.data)
+                  })
+                  this.$refs[formName].resetFields();
+                  this.createOpen = false;
                 } else {
                   console.log('error submit!!');
                   return false;
@@ -492,39 +417,36 @@ export default {
               });
     },
     createCancel(formName){
-      //重置表单
-      //this.newForm = Object.assign({},this.defaultForm)
       this.$refs[formName].resetFields();
       this.createOpen = false
     },
     modifyTaskSave(event){
       //与后端交互  修改task
-      event.start=this.detailForm.ddl_time
-      event.detail=Object.assign({}, this.detailForm)
-      console.log( this.detailForm)
-      //传回此时修改的event.detail的JSON字符串 为不受后面影响
-      modifyOneTask(JSON.stringify(event.detail)).then(res =>{
-        console.log(res.data)
-      })
+      event.detail.is_finished=this.form.done;
+      event.detail.ddl.notification_alert=this.form.alert;
+      event.detail.ddl.notification_time=this.form.alertTime ;
+      console.log(event.detail)
+      console.log(this.selectedEvent)
+      console.log(this.form)
+      modifyOneTask(event.detail).then(res =>{
+      console.log(res.data)
       this.selectedOpen=false
+      })
      },
-
     nth(d) {
       return d > 3 && d < 21
         ? 'th'
         : ['th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th'][d % 10]
     },
-    /*
     rnd(a, b) {
       return Math.floor((b - a + 1) * Math.random()) + a
     },
-    */
     formatDate(a, withTime) {
       return withTime
         ? `${a.getFullYear()}-${a.getMonth() + 1}-${a.getDate()} ${a.getHours()}:${a.getMinutes()}:${a.getSeconds()}`
         : `${a.getFullYear()}-${a.getMonth() + 1}-${a.getDate()}`
     },
-     /*
+
     //生成detail格式，与从后台获取的json中的data格式相同
     formatDetail(tid,title,category,urls,platform,cid,cname,ddl_id,ddl_time,alert,alert_time,create_time,done){
       var detail = { // personal
@@ -546,8 +468,8 @@ export default {
           "created_at":create_time, //获取时间
           "is_finished": done
         }
-        return detail
-    }*/
+        return detail;
+    }
   }
 }
 </script>
