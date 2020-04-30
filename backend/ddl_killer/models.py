@@ -1,4 +1,6 @@
 from django.db import models
+# django密码转换
+from django.contrib.auth.hashers import make_password
 
 # Create your models here.
 class User(models.Model):
@@ -8,6 +10,11 @@ class User(models.Model):
     email = models.EmailField(null=True, blank=True)
     
     
+    def save(self):
+        if not self.password.startswith('pbkdf2_'):
+            self.password = make_password(self.password)
+        super().save()
+
 class Course(models.Model):
     cid = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50, null=False, default='course')
