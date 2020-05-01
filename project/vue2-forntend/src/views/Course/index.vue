@@ -27,18 +27,18 @@
                 class="elevation-1"
                 show-expand
                 :expanded.sync="expanded"
-                item-key="name"
+                item-key="tid"
               >
-                <template v-slot:item.remains="{ item }">
+                <!--template v-slot:item.remains="{ item }">
                   <v-chip :color="getColor(item.remains)" dark>{{ item.remains }}</v-chip>
-                </template>
+                </template-->
 
-                <template v-slot:item.glutenfree="{ item }">
+                <!--template v-slot:item.glutenfree="{ item }">
                   <v-simple-checkbox v-model="item.glutenfree"></v-simple-checkbox>
-                </template>
+                </template-->
 
                 <template v-slot:expanded-item="{ headers, item }">
-                  <td :colspan="headers.length">{{ item.contents }}</td>
+                  <td :colspan="headers.length">{{ item.content }}</td>
                 </template>
 
               </v-data-table>
@@ -97,6 +97,7 @@
 
 <script>
   import { getUserCourses } from '@/api/course';
+  import { getCourseByCid } from '@/api/course';
   import Eventlist from '../Eventlist/index.vue'
   //DDL列表 开始
   //DDL列表 结束
@@ -115,10 +116,10 @@
           sortable: false,
           value: 'name',
         },
-        { text: '发布时间', value: 'starts' },
-        { text: '截止时间', value: 'ends' },
-        { text: '剩余时间', value: 'remains' },
-        { text: '完成状态', value: 'glutenfree' },
+        //{ text: '发布时间', value: 'starts' },
+        { text: '截止时间', value: 'ddl.ddl_time' },
+        //{ text: '剩余时间', value: 'remains' },
+        //{ text: '完成状态', value: 'glutenfree' },
         { text: '已完成人数', value: 'dalaos' },
         { text: '更多', value: 'data-table-expand' },
       ],
@@ -157,9 +158,9 @@
       },
       chooseOne(item) {
         alert("choose" + item.course_name);
-        this.updatePage();
+        this.updatePage(item.cid);
       },
-      updatePage () {
+      updatePage (cid) {
         this.ddls = [
           {
             name: '计算机科学方法论',
@@ -182,6 +183,17 @@
             contents: '软件工程作业具体内容',
           },
         ]
+
+        // getCourseByCid(cid).then(res => {
+        //   console.log(res)
+        //   if (res.data.success) {
+        //     var r_tasks = res.data.tasks;
+        //     for (let i = 0; i < r_tasks.data.length; i++) {
+        //       this.ddls.push(r_tasks.data[i]);
+        //     }
+        //   }
+        // })
+
         this.srcs = [
           {
             name: '计算机网络课程笔记',

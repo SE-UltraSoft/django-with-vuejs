@@ -1,6 +1,6 @@
 <template>
   <div class="login-container">
-    <el-row type="flex" justify="center" style="margin-top: 180px">
+    <el-row type="flex" justify="center" style="margin-top: 180px" align="centered">
       <el-col :span="10">
         <!--el-card style="background-color: #3f5c6d2c;"-->
           <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">

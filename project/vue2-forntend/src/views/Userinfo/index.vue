@@ -15,7 +15,6 @@
               <v-textarea
                 v-model="studentname"
                 auto-grow
-                filled
                 color="blue"
                 label="name"
                 rows="1"
@@ -23,53 +22,41 @@
               <v-textarea
                 v-model="studentID"
                 auto-grow
-                filled
-                color="blue"
                 label="studentID"
                 rows="1"
+                disabled
               ></v-textarea>
               <v-text-field
                 v-model="password"
                 :rules="[rules.password, rules.length(6)]"
-                filled
                 color="blue"
                 counter="6"
                 label="Password"
-                style="min-height: 96px"
                 type="password"
-              ></v-text-field>
-              <v-text-field
+              >
+              </v-text-field>
+              <!--v-text-field
                 v-model="phone"
-                filled
                 color="blue"
                 label="Phone number"
-              ></v-text-field>
+              ></v-text-field-->
               <v-text-field
                 v-model="email"
                 :rules="[rules.email]"
-                filled
                 color="blue"
-                label="Email address"
+                label="Additional email"
                 type="email"
               ></v-text-field>
-              <v-textarea
-                v-model="profile"
-                auto-grow
-                filled
-                color="blue"
-                label="profile"
-                rows="1"
-              ></v-textarea>
             </v-form>
             <v-divider></v-divider>
             <v-card-actions>
-              <v-btn text @click="$refs.form.reset()">Clear</v-btn>
+              <v-btn text @click="OnUserInfoClear">Clear</v-btn>
               <v-spacer></v-spacer>
               <v-btn
-                :disabled="!form"
                 class="white--text"
                 color="blue accent-4"
                 depressed
+                :disabled="this.studentname==''||this.password==''||this.password.length<6"
                 @click="OnUserInfoSubmit"
               >Submit</v-btn>
             </v-card-actions>
@@ -121,7 +108,7 @@
                   vertical
                 ></v-divider>
 
-                <v-subheader>默认提醒时间</v-subheader>
+                <!--v-subheader>默认提醒时间</v-subheader>
                 <v-list-item>
                   <v-list-item-content>
                     <v-list-item-title v-text="`距离截止时间还剩`"></v-list-item-title>
@@ -180,7 +167,7 @@
                     </template>
                   </v-list-item-content>
 
-                </v-list-item>
+                </v-list-item-->
 
               </v-list>
             <!--/v-card-->
@@ -200,7 +187,7 @@ export default {
   data: () => ({
 
     form: false,
-    
+
     studentname: '',
     studentID: '',
     phone: '',
@@ -212,9 +199,11 @@ export default {
     rules: {
       email: v => (v || '').match(/@/) || 'Please enter a valid email',
       length: len => v => (v || '').length >= len || `Invalid character length, required ${len}`,
-      password: v => (v || '').match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*(_|[^\w])).+$/) ||
-        'Password must contain an upper case letter, a numeric character, and a special character',
-      required: v => !!v || 'This field is required',
+      // password: v => (v || '').match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*(_|[^\w])).+$/) ||
+      //   'Password must contain an upper case letter, a numeric character, and a special character',
+      //password: v => (v || '').match(/^(?=.*[a-z])(?=.*\d).+$/) ||
+      //  'Password must contain a numeric character',
+      //required: v => !!v || 'This field is required',
     },
 
     items: [
@@ -239,9 +228,15 @@ export default {
     OnUserInfoSubmit() {//传输数据到后台
       this.$message('submit!')
     },
+    OnUserInfoClear() {
+      this.studentname = ''
+      this.phone = ''
+      this.email = ''
+      this.password= ''
+    },
 
     initialize () {
-      
+
       getUserInfo(this.$store.getters.uid).then(res => {
         console.log(res)
         if (res.data.success) {
@@ -249,8 +244,8 @@ export default {
           this.studentname = user_info.name
           this.studentID = user_info.student_id
           // this.phone = '18888888888',
-          this.email = user_info.email
-          // password: 'Hey!ddlkiller123',
+          //this.email = user_info.email
+          this.password= 'Hey!ddlkiller123'
           // profile: 'The journey is the reword.',
         }
         else {

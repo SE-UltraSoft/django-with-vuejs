@@ -27,7 +27,7 @@ const r_courses = // 成功查询返回
     ]
 }
 
-const r_singleCourse = 
+const r_course1 =
 {
     "success": true,
     "message": "Success.",
@@ -38,9 +38,9 @@ const r_singleCourse =
     "data": [ //这里的data是tasks的集合
         {
             "tid": 10,
-            "title": "个人博客——热身", 
-            "category": "homework", 
-            "content": "这是一篇个人博客", 
+            "title": "个人博客——热身",
+            "category": "homework",
+            "content": "这是一篇个人博客",
             "useful_urls": [
                     "www.edu.cnblogs.com/xxxxxx"
             ],
@@ -80,10 +80,10 @@ const r_singleCourse =
                     "time": "23:55",
                     "repeat": null
                 },
-                "notification_content": "交作业啦"                
+                "notification_content": "交作业啦"
             }
         }
-    ] 
+    ]
 }
 
 
@@ -108,6 +108,21 @@ export default [
   },
 
   {
+    url: '/vue-admin-template/api/course/BH000001/tasks',
+    type: 'get',
+    response: config => {
+      const {cid} = config.query
 
+      console.log(config.query)
+
+      return {
+        code: 20000,
+        data: {
+          'success': true,
+          'tasks': r_course1,
+          'message': "Success",
+        }
+      }
+    }
   }
 ]
