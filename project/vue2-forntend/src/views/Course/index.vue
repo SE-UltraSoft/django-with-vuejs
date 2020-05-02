@@ -34,6 +34,10 @@
                   <v-chip :color="getColor(item.remains)" dark>{{ item.remains }}</v-chip>
                 </template-->
 
+                <template v-slot:item.title="{ item }">
+                  <a v-bind:href="item.urls"> {{item.title}}</a>
+                </template>
+
                 <template v-slot:item.is_finished="{ item }">
                   <v-simple-checkbox v-model="item.is_finished"></v-simple-checkbox>
                 </template>
@@ -157,7 +161,7 @@
         })
       },
       chooseOne(item) {
-        alert("choose" + item.course_name);
+        //alert("choose" + item.course_name);
         this.updatePage(item.cid);
       },
       updatePage (cid) {
